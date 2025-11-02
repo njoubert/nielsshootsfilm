@@ -100,7 +100,7 @@ func main() {
 	albumService := services.NewAlbumService(fileService)
 	configService := services.NewSiteConfigService(fileService)
 
-	imageService, err := services.NewImageService(uploadDir, configService)
+	imageService, err := services.NewImageService(uploadDir, configService, logger)
 	if err != nil {
 		logger.Error("failed to create image service", slog.String("error", err.Error()))
 		os.Exit(1)
@@ -212,11 +212,12 @@ func main() {
 	)
 
 	server := &http.Server{
-		Addr:         addr,
-		Handler:      r,
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 120 * time.Second,
-		IdleTimeout:  120 * time.Second,
+		Addr:              addr,
+		Handler:           r,
+		ReadHeaderTimeout: 10 * time.Second, // Strict timeout for reading headers
+		ReadTimeout:       0 * time.Minute,  // Generous timeout for file uploads on slow connections
+		WriteTimeout:      10 * time.Minute, // Generous timeout for waiting for processing before sending a response
+		IdleTimeout:       10 * time.Minute, // Keep-alive timeout
 	}
 
 	if err := server.ListenAndServe(); err != nil {

@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/njoubert/nielsshootsfilm/backend/internal"
 	"github.com/njoubert/nielsshootsfilm/backend/internal/models"
 	"github.com/njoubert/nielsshootsfilm/backend/internal/services"
 	"golang.org/x/crypto/bcrypt"
@@ -149,9 +152,26 @@ func (h *AlbumHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse multipart form (max 5000 MB)
-	if err := r.ParseMultipartForm(5000 << 20); err != nil {
-		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+	// Parse multipart form
+	// Each request contains one file, but allow some overhead for form metadata
+	maxFormSize := int64(internal.MaxUploadFileSize + (10 * 1024 * 1024)) // Max file size + 10MB overhead
+	if err := r.ParseMultipartForm(maxFormSize); err != nil {
+		// Check if this is a timeout or connection error
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "timeout") || strings.Contains(errMsg, "timed out") {
+			http.Error(w, "Upload timed out at the server. Try uploading smaller files or use a faster connection.", http.StatusRequestTimeout)
+			return
+		}
+		if strings.Contains(errMsg, "connection reset") || strings.Contains(errMsg, "broken pipe") {
+			http.Error(w, "Connection lost during upload. Please try again.", http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, http.ErrHandlerTimeout) {
+			http.Error(w, "Upload timed out at the server. Please try uploading smaller files or use a faster connection.", http.StatusRequestTimeout)
+			return
+		}
+		// Generic parse error
+		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 

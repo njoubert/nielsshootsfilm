@@ -201,7 +201,7 @@ func TestImageService_DeletePhoto(t *testing.T) {
 	require.NoError(t, err, "thumbnail file should exist")
 
 	// Create image service
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Create photo model
@@ -231,7 +231,7 @@ func TestImageService_DeletePhoto_NonexistentFiles(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create image service
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Create photo model pointing to nonexistent files
@@ -253,7 +253,7 @@ func TestImageService_CheckDiskSpace_SufficientSpace(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create image service with nil config (should use default 80%)
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Check disk space with a small file (1MB)
@@ -266,7 +266,7 @@ func TestImageService_CheckDiskSpace_MinimumFreeSpace(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create image service
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Get actual disk stats
@@ -315,7 +315,7 @@ func TestImageService_CheckDiskSpace_WithConfigAt80Percent(t *testing.T) {
 	configService := createTestConfigService(t, 80)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Small file should succeed
@@ -332,7 +332,7 @@ func TestImageService_CheckDiskSpace_WithConfigAt95Percent(t *testing.T) {
 	configService := createTestConfigService(t, 95)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Small file should succeed (we can't easily test the 95% cap without filling the disk)
@@ -348,7 +348,7 @@ func TestImageService_CheckDiskSpace_WithConfigAt10Percent(t *testing.T) {
 	configService := createTestConfigService(t, 10)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Get current disk usage
@@ -376,7 +376,7 @@ func TestImageService_CheckDiskSpace_WithNilConfig(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create image service with nil config service
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Should use default 80%
@@ -395,7 +395,7 @@ func TestImageService_CheckDiskSpace_ErrorMessage(t *testing.T) {
 	configService := createTestConfigService(t, 1)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Try to upload - should fail

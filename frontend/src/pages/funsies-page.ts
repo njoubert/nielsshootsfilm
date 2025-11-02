@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import '../components/loading-spinner';
 import '../components/upload-placeholder';
+import '../components/waiting-spinner';
 
 /**
  * Funsies page - showcase of loading spinners and upload placeholders.
@@ -10,7 +11,7 @@ import '../components/upload-placeholder';
 @customElement('funsies-page')
 export class FunsiesPage extends LitElement {
   @state() private animatedProgress = 0;
-  @state() private animatedStatus: 'uploading' | 'processing' = 'uploading';
+  @state() private animatedStatus: 'waiting' | 'uploading' | 'processing' = 'waiting';
 
   private animationTimer?: number;
 
@@ -34,12 +35,13 @@ export class FunsiesPage extends LitElement {
 
   private startAnimation() {
     const cycle = () => {
-      // Phase 1: Empty (0%) for 1 second
+      // Phase 1: Waiting for 2 seconds
       this.animatedProgress = 0;
-      this.animatedStatus = 'uploading';
+      this.animatedStatus = 'waiting';
 
-      // Phase 2: Fill up from 0% to 100% over 2 seconds
       setTimeout(() => {
+        // Phase 2: Start uploading - fill from 0% to 100% over 2 seconds
+        this.animatedStatus = 'uploading';
         let progress = 0;
         const fillInterval = setInterval(() => {
           progress += 10; // Increment by 10% every 200ms
@@ -59,7 +61,7 @@ export class FunsiesPage extends LitElement {
             }, 200);
           }
         }, 200); // Update every 200ms to see jerkiness
-      }, 1000);
+      }, 2000);
     };
 
     cycle();
@@ -167,7 +169,7 @@ export class FunsiesPage extends LitElement {
         <div class="section">
           <h2>Animated Upload Cycle</h2>
           <p class="description">
-            Watch the full upload cycle: empty → filling → processing → repeat
+            Watch the full upload cycle: waiting → uploading → processing → repeat
           </p>
           <div class="placeholder-grid">
             <upload-placeholder
@@ -207,6 +209,27 @@ export class FunsiesPage extends LitElement {
             </div>
             <div class="spinner-demo">
               <loading-spinner size="large"></loading-spinner>
+              <label>Large (60px)</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Waiting Spinners</h2>
+          <p class="description">
+            Breathing circles for waiting states. Slowly fades in and out instead of spinning.
+          </p>
+          <div class="spinner-grid">
+            <div class="spinner-demo">
+              <waiting-spinner size="small"></waiting-spinner>
+              <label>Small (20px)</label>
+            </div>
+            <div class="spinner-demo">
+              <waiting-spinner size="default"></waiting-spinner>
+              <label>Default (40px)</label>
+            </div>
+            <div class="spinner-demo">
+              <waiting-spinner size="large"></waiting-spinner>
               <label>Large (60px)</label>
             </div>
           </div>

@@ -23,7 +23,7 @@ func TestImageService_MaxImageSize_Default(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create image service with nil config (should use default 50MB)
-	imageService, err := NewImageService(tmpDir, nil)
+	imageService, err := NewImageService(tmpDir, nil, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Create a file header that's larger than 50MB
@@ -49,7 +49,7 @@ func TestImageService_MaxImageSize_Configured(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Test file just under the limit (should pass size check but fail on content)
@@ -80,7 +80,7 @@ func TestImageService_MaxImageSize_HardLimit(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create image service with config
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err, "NewImageService should succeed")
 
 	// Test file over the hard limit of 100MB
@@ -102,7 +102,7 @@ func TestImageService_MaxImageSize_EdgeCases(t *testing.T) {
 	err = configService.Update(config)
 	require.NoError(t, err)
 
-	imageService, err := NewImageService(tmpDir, configService)
+	imageService, err := NewImageService(tmpDir, configService, nil)
 	require.NoError(t, err)
 
 	// Test exactly at the limit (50MB exactly)

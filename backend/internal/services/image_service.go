@@ -4,26 +4,37 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 
 	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/google/uuid"
+	"github.com/njoubert/nielsshootsfilm/backend/internal"
 	"github.com/njoubert/nielsshootsfilm/backend/internal/models"
 	"github.com/rwcarlsen/goexif/exif"
 )
 
+// Image processing constants.
 const (
-	maxFileSize      = 100 * 1024 * 1024 // 100 MB
-	displayMaxSize   = 3840              // 4K display version
-	thumbnailMaxSize = 800               // Thumbnail size
-	displayQuality   = 85                // Quality for display (JPEG/WebP)
-	thumbnailQuality = 80                // Quality for thumbnail (JPEG/WebP)
-	minFreeSpace     = 500 * 1024 * 1024 // Minimum 500 MB free space required
+	displayMaxSize       = 3840              // 4K display version
+	thumbnailMaxSize     = 800               // Thumbnail size
+	displayQuality       = 85                // Quality for display (JPEG/WebP)
+	thumbnailQuality     = 80                // Quality for thumbnail (JPEG/WebP)
+	minFreeSpace         = 500 * 1024 * 1024 // Minimum 500 MB free space required
+	maxConcurrentVIPSOps = 4                 // Max concurrent VIPS operations (prevents CPU thrashing)
+)
+
+// VIPS configuration constants.
+const (
+	vipsMaxCacheMem   = 500 * 1024 * 1024 // 500 MB cache
+	vipsMaxCacheFiles = 0                 // Don't cache files
+	vipsMaxCacheSize  = 100               // Max 100 operations in cache
 )
 
 var allowedMimeTypes = map[string]bool{
@@ -40,12 +51,42 @@ var allowedMimeTypes = map[string]bool{
 type ImageService struct {
 	uploadDir     string
 	configService *SiteConfigService
+	processSem    chan struct{} // Semaphore to limit concurrent VIPS operations
+	logger        *slog.Logger
 }
 
 // NewImageService creates a new image service.
-func NewImageService(uploadDir string, configService *SiteConfigService) (*ImageService, error) {
-	// Initialize vips
-	vips.Startup(nil)
+func NewImageService(uploadDir string, configService *SiteConfigService, logger *slog.Logger) (*ImageService, error) {
+	// Initialize vips with configuration optimized for concurrent operations
+	// Use moderate concurrency per operation (2-4 threads) since we'll have multiple operations
+	numCPU := runtime.NumCPU()
+	vipsConcurrency := numCPU / 2 // Use half the CPUs per operation
+	if vipsConcurrency < 1 {
+		vipsConcurrency = 1
+	}
+
+	config := &vips.Config{
+		ConcurrencyLevel: vipsConcurrency, // Threads per VIPS operation
+		MaxCacheFiles:    vipsMaxCacheFiles,
+		MaxCacheMem:      vipsMaxCacheMem,
+		MaxCacheSize:     vipsMaxCacheSize,
+		ReportLeaks:      true,
+		CacheTrace:       false,
+		CollectStats:     true,
+	}
+	vips.Startup(config)
+
+	// Log VIPS configuration
+	if logger != nil {
+		logger.Info("vips initialized",
+			slog.Int("cpu_count", numCPU),
+			slog.Int("concurrency_per_operation", vipsConcurrency),
+			slog.Int("max_concurrent_operations", maxConcurrentVIPSOps),
+			slog.Int64("cache_mem_mb", vipsMaxCacheMem/(1024*1024)),
+			slog.Int("cache_max_files", vipsMaxCacheFiles),
+			slog.Int("cache_max_size", vipsMaxCacheSize),
+		)
+	}
 
 	// Create upload directories
 	dirs := []string{
@@ -64,6 +105,8 @@ func NewImageService(uploadDir string, configService *SiteConfigService) (*Image
 	return &ImageService{
 		uploadDir:     uploadDir,
 		configService: configService,
+		processSem:    make(chan struct{}, maxConcurrentVIPSOps), // Limit concurrent VIPS operations
+		logger:        logger,
 	}, nil
 }
 
@@ -129,6 +172,10 @@ func (s *ImageService) checkDiskSpace(estimatedSize int64) error {
 
 // ProcessUpload processes an uploaded image file using libvips.
 func (s *ImageService) ProcessUpload(fileHeader *multipart.FileHeader) (*models.Photo, error) {
+	// Acquire semaphore to limit concurrent VIPS operations
+	s.processSem <- struct{}{}
+	defer func() { <-s.processSem }()
+
 	// Validate file size against configured max (default 50MB)
 	maxSizeMB := 50
 	if s.configService != nil {
@@ -143,8 +190,8 @@ func (s *ImageService) ProcessUpload(fileHeader *multipart.FileHeader) (*models.
 	}
 
 	// Also check hard limit for safety
-	if fileHeader.Size > maxFileSize {
-		return nil, fmt.Errorf("file size %s exceeds absolute maximum %s", formatBytes(fileHeader.Size), formatBytes(maxFileSize))
+	if fileHeader.Size > internal.MaxUploadFileSize {
+		return nil, fmt.Errorf("file size %s exceeds absolute maximum %s", formatBytes(fileHeader.Size), formatBytes(internal.MaxUploadFileSize))
 	}
 
 	// Check disk space before processing

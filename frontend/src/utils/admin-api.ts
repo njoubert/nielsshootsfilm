@@ -5,6 +5,7 @@
 
 import type { Album, Photo, SiteConfig } from '../types/data-models';
 import { dispatchLoginEvent, dispatchLogoutEvent } from './auth-state';
+import { CONCURRENT_UPLOAD_COUNT, UPLOAD_TIMEOUT_MS } from './constants';
 
 // Use relative URLs in production, localhost in development
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
@@ -200,7 +201,7 @@ export interface UploadPhotosResponse {
 
 export interface UploadProgress {
   filename: string;
-  status: 'uploading' | 'processing' | 'complete' | 'error';
+  status: 'waiting' | 'uploading' | 'processing' | 'complete' | 'error';
   progress: number; // 0-100 for uploading, undefined for other states
   error?: string;
   uploadedPhoto?: Photo; // Full photo data returned from server on completion
@@ -289,16 +290,36 @@ function uploadSinglePhoto(
       } else {
         // HTTP error
         let errorMessage = `Upload failed (${xhr.status})`;
-        try {
-          const contentType = xhr.getResponseHeader('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const errorData = JSON.parse(xhr.responseText) as { error?: string; message?: string };
-            errorMessage = errorData.error || errorData.message || errorMessage;
-          } else {
-            errorMessage = xhr.responseText || errorMessage;
+
+        // Special handling for timeout errors
+        if (xhr.status === 408) {
+          errorMessage =
+            'Upload timed out on the server. Try uploading smaller files or use a faster connection.';
+        } else {
+          try {
+            const contentType = xhr.getResponseHeader('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = JSON.parse(xhr.responseText) as {
+                error?: string;
+                message?: string;
+              };
+              errorMessage = errorData.error || errorData.message || errorMessage;
+            } else if (xhr.responseText) {
+              // Plain text error from server
+              const serverError = xhr.responseText.trim();
+              // Clean up the error message if it contains our improved backend messages
+              if (serverError.includes('timed out') || serverError.includes('timeout')) {
+                errorMessage = serverError;
+              } else if (serverError.length < 200) {
+                // Only use short error messages directly
+                errorMessage = serverError;
+              } else {
+                errorMessage = `Upload failed: ${serverError.substring(0, 100)}...`;
+              }
+            }
+          } catch {
+            // Ignore parse errors, use default message
           }
-        } catch {
-          // Ignore parse errors, use default message
         }
 
         onProgress({
@@ -333,9 +354,22 @@ function uploadSinglePhoto(
       reject(new Error('Upload cancelled'));
     });
 
+    // Handle timeout
+    xhr.addEventListener('timeout', () => {
+      onProgress({
+        filename: file.name,
+        status: 'error',
+        progress: 0,
+        error:
+          'Upload timed out in the webapp. Try uploading smaller files or use a faster connection.',
+      });
+      reject(new Error('Upload timed out'));
+    });
+
     // Open and send request
     xhr.open('POST', `${API_BASE_URL}/api/admin/albums/${albumId}/photos/upload`);
     xhr.withCredentials = true; // Include cookies for authentication
+    xhr.timeout = UPLOAD_TIMEOUT_MS; // Client-side timeout (matches server ReadTimeout)
     xhr.send(formData);
   });
 }
@@ -347,14 +381,14 @@ function uploadSinglePhoto(
  * @param albumId - The album ID to upload to
  * @param files - Array of files to upload
  * @param onProgress - Optional callback for tracking upload progress per file
- * @param concurrency - Maximum number of concurrent uploads (default: 3)
+ * @param concurrency - Maximum number of concurrent uploads (default: from CONCURRENT_UPLOAD_COUNT constant)
  * @returns Promise that resolves with aggregated upload results
  */
 export async function uploadPhotos(
   albumId: string,
   files: File[],
   onProgress?: UploadProgressCallback,
-  concurrency = 3
+  concurrency = CONCURRENT_UPLOAD_COUNT
 ): Promise<UploadPhotosResponse> {
   const uploaded: Photo[] = [];
   const errors: string[] = [];
@@ -362,6 +396,15 @@ export async function uploadPhotos(
   // Helper to process a single file
   const processFile = async (file: File) => {
     try {
+      // Update status to uploading when actually starting
+      if (onProgress) {
+        onProgress({
+          filename: file.name,
+          status: 'uploading',
+          progress: 0,
+        });
+      }
+
       const result = await uploadSinglePhoto(albumId, file, (progress) => {
         if (onProgress) {
           onProgress(progress);
@@ -380,7 +423,8 @@ export async function uploadPhotos(
 
   while (queue.length > 0 || active.size > 0) {
     // Fill up to concurrency limit
-    while (active.size < concurrency && queue.length > 0) {
+    while (active.size <= concurrency && queue.length > 0) {
+      console.log('Starting upload for file:', queue[0].name, 'active size:', active.size);
       const file = queue.shift()!;
       const promise = processFile(file).finally(() => {
         active.delete(promise);

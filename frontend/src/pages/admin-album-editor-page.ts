@@ -538,7 +538,7 @@ export class AdminAlbumEditorPage extends LitElement {
     files.forEach((file) => {
       newProgress.set(file.name, {
         filename: file.name,
-        status: 'uploading',
+        status: 'waiting',
         progress: 0,
       });
     });

@@ -18,4 +18,10 @@ export const MAX_UPLOAD_BATCH_SIZE = 1000;
  * This was the convenient way to provide user feedback without implementing
  * a more complex system involving background processing and status polling.
  */
-export const CONCURRENT_UPLOAD_COUNT = 4;
+export const CONCURRENT_UPLOAD_COUNT = 8;
+
+/**
+ * Upload timeout in milliseconds (10 minutes).
+ * This matches the server's ReadTimeout to allow large files to upload on slow connections.
+ */
+export const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000;

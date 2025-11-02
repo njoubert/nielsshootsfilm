@@ -1,6 +1,7 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import './loading-spinner';
+import './waiting-spinner';
 
 /**
  * Upload placeholder component that shows upload progress.
@@ -10,8 +11,12 @@ import './loading-spinner';
 export class UploadPlaceholder extends LitElement {
   @property({ type: String }) filename = '';
   @property({ type: Number }) progress = 0; // 0-100, only meaningful during 'uploading'
-  @property({ type: String }) status: 'uploading' | 'processing' | 'complete' | 'error' =
-    'uploading';
+  @property({ type: String }) status:
+    | 'waiting'
+    | 'uploading'
+    | 'processing'
+    | 'complete'
+    | 'error' = 'waiting';
   @property({ type: String }) error = '';
 
   static styles = css`
@@ -129,6 +134,11 @@ export class UploadPlaceholder extends LitElement {
 
   private renderContent() {
     switch (this.status) {
+      case 'waiting':
+        return html`
+          <waiting-spinner size="large"></waiting-spinner>
+          <div class="status-text">Waiting...</div>
+        `;
       case 'uploading':
         return html`
           ${this.renderProgressCircle()}
