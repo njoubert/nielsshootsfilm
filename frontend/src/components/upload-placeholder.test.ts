@@ -9,7 +9,7 @@ describe('UploadPlaceholder', () => {
 
     expect(el.filename).to.equal('');
     expect(el.progress).to.equal(0);
-    expect(el.status).to.equal('uploading');
+    expect(el.status).to.equal('waiting');
   });
 
   it('renders filename', async () => {
@@ -72,12 +72,11 @@ describe('UploadPlaceholder', () => {
         html`<upload-placeholder status="processing"></upload-placeholder>`
       );
 
-      const processingIcon = el.shadowRoot?.querySelector('.processing-icon');
+      const spinner = el.shadowRoot?.querySelector('loading-spinner');
       const statusText = el.shadowRoot?.querySelector('.status-text');
       const progressCircle = el.shadowRoot?.querySelector('.progress-circle');
 
-      expect(processingIcon).to.exist;
-      expect(processingIcon?.textContent).to.equal('⟳');
+      expect(spinner).to.exist;
       expect(statusText?.textContent).to.equal('Processing...');
       expect(progressCircle).to.not.exist; // No progress circle in processing state
     });
