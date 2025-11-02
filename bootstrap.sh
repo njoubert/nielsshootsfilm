@@ -124,8 +124,6 @@ if [ ! -f "$PROJECT_ROOT/data/site_config.json" ]; then
   "navigation": {
     "show_home": true,
     "show_albums": true,
-    "show_about": false,
-    "show_contact": false
   },
   "features": {}
 }

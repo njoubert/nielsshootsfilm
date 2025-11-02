@@ -16,7 +16,6 @@ type SiteConfig struct {
 	Branding    BrandingConfig   `json:"branding"`
 	Portfolio   PortfolioConfig  `json:"portfolio"`
 	Navigation  NavigationConfig `json:"navigation"`
-	Features    FeaturesConfig   `json:"features"`
 	Storage     StorageConfig    `json:"storage"`
 }
 
@@ -97,21 +96,8 @@ type PortfolioConfig struct {
 
 // NavigationConfig controls nav menu visibility.
 type NavigationConfig struct {
-	ShowHome    bool         `json:"show_home"`
-	ShowAlbums  bool         `json:"show_albums"`
-	ShowBlog    bool         `json:"show_blog,omitempty"`
-	ShowAbout   bool         `json:"show_about"`
-	ShowContact bool         `json:"show_contact"`
-	CustomLinks []CustomLink `json:"custom_links,omitempty"`
-}
-
-// FeaturesConfig toggles optional features.
-type FeaturesConfig struct {
-	EnableBlog        bool `json:"enable_blog,omitempty"`
-	EnableContactForm bool `json:"enable_contact_form,omitempty"`
-	EnableNewsletter  bool `json:"enable_newsletter,omitempty"`
-	EnableComments    bool `json:"enable_comments,omitempty"`
-	EnableAnalytics   bool `json:"enable_analytics,omitempty"`
+	ShowHome   bool `json:"show_home"`
+	ShowAlbums bool `json:"show_albums"`
 }
 
 // StorageConfig contains storage and disk usage settings.

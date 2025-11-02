@@ -457,8 +457,6 @@ Add to `frontend/package.json`:
     "show_home": true,
     "show_albums": true,
     "show_blog": true,
-    "show_about": true,
-    "show_contact": true,
     "custom_links": [
       {
         "label": "Shop",
@@ -662,9 +660,7 @@ Create minimal valid JSON files:
   },
   "navigation": {
     "show_home": true,
-    "show_albums": true,
-    "show_about": true,
-    "show_contact": true
+    "show_albums": true
   },
   "features": {
     "enable_analytics": false

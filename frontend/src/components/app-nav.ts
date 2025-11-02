@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import type { CustomLink, NavigationConfig } from '../types/data-models';
+import type { NavigationConfig } from '../types/data-models';
 import { checkAuth } from '../utils/admin-api';
 import { onLogin, onLogout } from '../utils/auth-state';
 import { handleNavClick, routes } from '../utils/navigation';
@@ -117,19 +117,9 @@ export class AppNav extends LitElement {
         <ul class="nav-links">
           ${this.isAuthenticated
             ? html`<li>
-                <a href=${routes.admin.albums()} class="admin" @click=${handleNavClick}>Admin</a>
+                <a href=${routes.admin.dashboard()} class="admin" @click=${handleNavClick}>Admin</a>
               </li>`
             : ''}
-          ${this.config?.show_about
-            ? html`<li><a href="/about" @click=${handleNavClick}>About</a></li>`
-            : ''}
-          ${this.config?.show_contact
-            ? html`<li><a href="/contact" @click=${handleNavClick}>Contact</a></li>`
-            : ''}
-          ${this.config?.custom_links?.map(
-            (link: CustomLink) =>
-              html`<li><a href="${link.url}" @click=${handleNavClick}>${link.label}</a></li>`
-          )}
           ${this.config?.show_albums
             ? html`<li><a href=${routes.albums()} @click=${handleNavClick}>Galleries</a></li>`
             : ''}

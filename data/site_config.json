@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2025-11-01T20:39:24.11724Z",
+  "last_updated": "2025-11-02T06:33:39.47324Z",
   "site": {
     "title": "niels.shoots.film",
     "tagline": "Film Photography Portfolio",
@@ -8,7 +8,13 @@
     "language": "en",
     "timezone": "America/Los_Angeles"
   },
-  "owner": {},
+  "owner": {
+    "name": "Niels Joubert",
+    "bio": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+    "email": "njoubert@gmai.com",
+    "phone": "650 823 1662",
+    "location": "San Francisco, CA"
+  },
   "social": {
     "instagram": "niels.shoots.film"
   },
@@ -43,11 +49,8 @@
   },
   "navigation": {
     "show_home": true,
-    "show_albums": true,
-    "show_about": false,
-    "show_contact": false
+    "show_albums": true
   },
-  "features": {},
   "storage": {
     "max_disk_usage_percent": 81,
     "max_image_size_mb": 100

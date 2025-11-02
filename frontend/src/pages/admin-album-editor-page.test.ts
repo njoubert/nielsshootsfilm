@@ -535,8 +535,7 @@ describe('AdminAlbumEditorPage', () => {
           },
         },
         portfolio: { show_exif_data: false, enable_lightbox: true },
-        navigation: { show_home: true, show_albums: true, show_about: false, show_contact: false },
-        features: {},
+        navigation: { show_home: true, show_albums: true },
         storage: { max_disk_usage_percent: 80, max_image_size_mb: 50 },
       };
 
@@ -597,8 +596,7 @@ describe('AdminAlbumEditorPage', () => {
           },
         },
         portfolio: { show_exif_data: false, enable_lightbox: true },
-        navigation: { show_home: true, show_albums: true, show_about: false, show_contact: false },
-        features: {},
+        navigation: { show_home: true, show_albums: true },
         storage: { max_disk_usage_percent: 80, max_image_size_mb: 50 },
       };
 
@@ -674,8 +672,7 @@ describe('AdminAlbumEditorPage', () => {
           },
         },
         portfolio: { show_exif_data: false, enable_lightbox: true },
-        navigation: { show_home: true, show_albums: true, show_about: false, show_contact: false },
-        features: {},
+        navigation: { show_home: true, show_albums: true },
         storage: { max_disk_usage_percent: 80, max_image_size_mb: 75 },
       };
       await el.updateComplete;

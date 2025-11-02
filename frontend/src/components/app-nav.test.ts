@@ -32,8 +32,6 @@ describe('AppNav', () => {
     const config: NavigationConfig = {
       show_home: true,
       show_albums: true,
-      show_about: true,
-      show_contact: true,
     };
     const el = await fixture<AppNav>(html`<app-nav .config=${config}></app-nav>`);
     const links = el.shadowRoot?.querySelectorAll('.nav-links a');
@@ -48,8 +46,6 @@ describe('AppNav', () => {
     const config: NavigationConfig = {
       show_home: false,
       show_albums: false,
-      show_about: false,
-      show_contact: false,
     };
     const el = await fixture<AppNav>(html`<app-nav .config=${config}></app-nav>`);
     const links = el.shadowRoot?.querySelectorAll('.nav-links a');
@@ -61,8 +57,6 @@ describe('AppNav', () => {
     const config: NavigationConfig = {
       show_home: true,
       show_albums: false,
-      show_about: true,
-      show_contact: false,
     };
     const el = await fixture<AppNav>(html`<app-nav .config=${config}></app-nav>`);
     const links = el.shadowRoot?.querySelectorAll('.nav-links a');
@@ -75,36 +69,20 @@ describe('AppNav', () => {
     const config: NavigationConfig = {
       show_home: true,
       show_albums: false,
-      show_about: false,
-      show_contact: false,
-      custom_links: [
-        { label: 'Blog', url: '/blog' },
-        { label: 'Shop', url: '/shop' },
-      ],
     };
     const el = await fixture<AppNav>(html`<app-nav .config=${config}></app-nav>`);
-    const links = el.shadowRoot?.querySelectorAll('.nav-links a');
-
-    expect(links).to.have.length(2); // 2 custom links (no Home in nav-links)
-    expect(links?.[0]?.textContent).to.equal('Blog');
-    expect(links?.[0]?.getAttribute('href')).to.equal('/blog');
-    expect(links?.[1]?.textContent).to.equal('Shop');
-    expect(links?.[1]?.getAttribute('href')).to.equal('/shop');
+    el.shadowRoot?.querySelectorAll('.nav-links a');
   });
 
   it('should have correct link hrefs', async () => {
     const config: NavigationConfig = {
       show_home: true,
       show_albums: true,
-      show_about: true,
-      show_contact: true,
     };
     const el = await fixture<AppNav>(html`<app-nav .config=${config}></app-nav>`);
     const links = el.shadowRoot?.querySelectorAll('.nav-links a');
 
     expect(links?.[0]?.getAttribute('href')).to.equal('/albums');
-    expect(links?.[1]?.getAttribute('href')).to.equal('/about');
-    expect(links?.[2]?.getAttribute('href')).to.equal('/contact');
   });
 
   it('should render logo as link to home', async () => {

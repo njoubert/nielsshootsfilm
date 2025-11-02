@@ -142,17 +142,7 @@ export interface NavigationConfig {
   show_home: boolean;
   show_albums: boolean;
   show_blog?: boolean;
-  show_about: boolean;
-  show_contact: boolean;
   custom_links?: CustomLink[];
-}
-
-export interface FeaturesConfig {
-  enable_blog?: boolean;
-  enable_contact_form?: boolean;
-  enable_newsletter?: boolean;
-  enable_comments?: boolean;
-  enable_analytics?: boolean;
 }
 
 export interface SiteConfig {
@@ -164,7 +154,6 @@ export interface SiteConfig {
   branding: BrandingConfig;
   portfolio: PortfolioConfig;
   navigation: NavigationConfig;
-  features: FeaturesConfig;
   storage: StorageConfig;
 }
 

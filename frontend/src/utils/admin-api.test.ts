@@ -541,10 +541,7 @@ describe('admin-api utilities', () => {
           navigation: {
             show_home: true,
             show_albums: true,
-            show_about: true,
-            show_contact: true,
           },
-          features: { enable_analytics: false },
           storage: {
             max_disk_usage_percent: 80,
             max_image_size_mb: 50,
@@ -609,10 +606,7 @@ describe('admin-api utilities', () => {
           navigation: {
             show_home: true,
             show_albums: true,
-            show_about: true,
-            show_contact: true,
           },
-          features: { enable_analytics: false },
           storage: {
             max_disk_usage_percent: 80,
             max_image_size_mb: 50,

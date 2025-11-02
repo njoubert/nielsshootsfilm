@@ -99,13 +99,8 @@ func (s *SiteConfigService) getDefaultConfig() *models.SiteConfig {
 			EnableLightbox: true,
 		},
 		Navigation: models.NavigationConfig{
-			ShowHome:    true,
-			ShowAlbums:  true,
-			ShowAbout:   true,
-			ShowContact: true,
-		},
-		Features: models.FeaturesConfig{
-			EnableAnalytics: false,
+			ShowHome:   true,
+			ShowAlbums: true,
 		},
 	}
 }
