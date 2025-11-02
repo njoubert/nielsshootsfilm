@@ -71,7 +71,10 @@ describe('api utilities', () => {
 
       const result = await fetchSiteConfig();
 
-      expect(global.fetch).toHaveBeenCalledWith('/data/site_config.json');
+      // Check that fetch was called with cache-busting parameter
+      expect(global.fetch).toHaveBeenCalled();
+      const fetchCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(fetchCall).toMatch(/^\/data\/site_config\.json\?_=\d+$/);
       expect(result).toEqual(mockConfig);
     });
 
@@ -117,7 +120,10 @@ describe('api utilities', () => {
 
       const result = await fetchAlbumsData();
 
-      expect(global.fetch).toHaveBeenCalledWith('/data/albums.json');
+      // Check that fetch was called with cache-busting parameter
+      expect(global.fetch).toHaveBeenCalled();
+      const fetchCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(fetchCall).toMatch(/^\/data\/albums\.json\?_=\d+$/);
       expect(result).toEqual(mockAlbums);
     });
 

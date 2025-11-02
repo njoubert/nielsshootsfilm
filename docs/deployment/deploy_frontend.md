@@ -142,6 +142,24 @@ The application expects these paths from domain root:
 #### Nginx
 
 ```nginx
+# nielsshootsfilm.com - HTTP redirect
+server {
+    listen 80;
+    listen [::]:80;
+    server_name nielsshootsfilm.com www.nielsshootsfilm.com;
+
+    # Let's Encrypt ACME challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+    }
+
+    # Redirect to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# nielsshootsfilm.com - HTTPS
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -170,9 +188,36 @@ server {
         return 200 'OK';
     }
 
+    # API reverse proxy - must come BEFORE SPA routing
+    location ^~ /api {
+        proxy_pass http://localhost:6180;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts for image uploads
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 600s;
+        proxy_read_timeout 600s;
+
+        # Buffer settings for large uploads
+        client_max_body_size 110M;
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+
     # Site root
     root /Users/njoubert/webserver/sites/nielsshootsfilm.com/public;
     index index.html index.htm;
+
+    # Don't cache data files - they may be updated by admin
+    location /data/ {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Pragma "no-cache";
+        add_header Expires "0";
+    }
 
     # SPA routing - serve index.html for all non-file requests
     location / {
@@ -184,11 +229,8 @@ server {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
-
-    # Logging
-    access_log /usr/local/var/log/nginx/nielsshootsfilm.com.access.log;
-    error_log /usr/local/var/log/nginx/nielsshootsfilm.com.error.log;
 }
+
 ```
 
 ## Testing the Build Locally

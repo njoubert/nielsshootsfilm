@@ -5,11 +5,20 @@
 import type { Album, AlbumsData, SiteConfig } from '../types/data-models';
 
 /**
+ * Add cache-busting query parameter to URL.
+ * This ensures browsers fetch fresh data after admin updates.
+ */
+function cacheBustUrl(url: string): string {
+  const timestamp = Date.now();
+  return `${url}?_=${timestamp}`;
+}
+
+/**
  * Fetch site configuration.
  */
 export async function fetchSiteConfig(): Promise<SiteConfig> {
   console.debug('Fetching site config from /data/site_config.json');
-  const response = await fetch('/data/site_config.json');
+  const response = await fetch(cacheBustUrl('/data/site_config.json'));
   if (!response.ok) {
     throw new Error(`Failed to fetch site config: ${response.statusText}`);
   }
@@ -21,7 +30,7 @@ export async function fetchSiteConfig(): Promise<SiteConfig> {
  */
 export async function fetchAlbumsData(): Promise<AlbumsData> {
   console.debug('Fetching all albums data');
-  const response = await fetch('/data/albums.json');
+  const response = await fetch(cacheBustUrl('/data/albums.json'));
   if (!response.ok) {
     throw new Error(`Failed to fetch albums: ${response.statusText}`);
   }

@@ -29,6 +29,37 @@ export default defineConfig({
     {
       name: 'serve-static-uploads',
       configureServer(server) {
+        // Serve data files with no-cache headers
+        server.middlewares.use('/data', (req, res, next) => {
+          if (!req.url) {
+            next();
+            return;
+          }
+
+          const dataPath = resolve(__dirname, '../data');
+          const filePath = resolve(dataPath, req.url.substring(1));
+
+          // Security check: ensure path is within data directory
+          if (!filePath.startsWith(dataPath)) {
+            res.statusCode = 403;
+            res.end('Forbidden');
+            return;
+          }
+
+          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            const stat = fs.statSync(filePath);
+            // Don't cache data files - they may be updated by admin
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Length', stat.size.toString());
+            fs.createReadStream(filePath).pipe(res);
+          } else {
+            next();
+          }
+        });
+
         server.middlewares.use('/uploads', (req, res, next) => {
           if (!req.url) {
             next();
