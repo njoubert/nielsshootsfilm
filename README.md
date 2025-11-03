@@ -157,7 +157,7 @@ Run tests using the unified test script:
 ./test.sh
 
 # Run specific test suites
-./test.sh backend   # Backend unit tests only
+./test.sh backend   # Backend unit tests only (with race detector)
 ./test.sh frontend  # Frontend unit tests only
 ./test.sh api       # API integration tests + schema validation
 
@@ -170,9 +170,11 @@ Run tests using the unified test script:
 ./test.sh -- frontend/src/components/storage-stats.test.ts
 
 # Or run tests directly in each directory
-cd backend && go test ./...
+cd backend && go test -race ./...  # Always use -race for concurrency safety
 cd frontend && npm test
 ```
+
+**Note:** Backend tests always run with Go's race detector (`-race` flag) to catch concurrency bugs early.
 
 The test script automatically:
 

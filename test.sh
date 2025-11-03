@@ -5,7 +5,7 @@
 #
 # Usage:
 #   ./test.sh                           # Run all tests (backend and frontend unit tests)
-#   ./test.sh backend                   # Run all backend unit tests
+#   ./test.sh backend                   # Run all backend unit tests (with race detector)
 #   ./test.sh frontend                  # Run all frontend unit tests
 #   ./test.sh api                       # Run API integration tests + schema validation
 #   ./test.sh -- <path>                 # Run tests for specific path
@@ -20,6 +20,8 @@
 #   ./test.sh -- backend/internal/handlers
 #   ./test.sh -- frontend/src/components/storage-stats.test.ts
 #   ./test.sh -- storage-stats.test.ts
+#
+# Note: Backend tests always run with -race flag to catch concurrency bugs
 
 set -euo pipefail
 
@@ -54,10 +56,12 @@ log_warning() {
 run_backend_tests() {
     local test_path="${1:-./...}"
 
-    log_info "Running backend Go tests: $test_path"
+    log_info "Running backend Go tests with -race: $test_path"
     cd "$SCRIPT_DIR/backend"
 
-    if go test -v "$test_path"; then
+    # Run tests and filter out harmless macOS linker warnings about LC_DYSYMTAB
+    # These warnings are common with the race detector on macOS and can be safely ignored
+    if go test -v -race "$test_path" 2>&1 | grep -v "malformed LC_DYSYMTAB"; then
         log_success "Backend tests passed"
         return 0
     else
@@ -218,7 +222,7 @@ main() {
         if [ -n "$test_path" ]; then
             run_backend_tests "$test_path" || backend_result=$?
         else
-            run_backend_tests || backend_result=$?
+            run_backend_tests "./..." || backend_result=$?
         fi
     fi
 
