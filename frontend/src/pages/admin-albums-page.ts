@@ -338,7 +338,7 @@ export class AdminAlbumsPage extends LitElement {
       // Sort by order
       this.albums.sort((a, b) => a.order - b.order);
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load albums';
+      this.error = err instanceof Error ? err.message : 'Failed to load galleries';
     } finally {
       this.loading = false;
     }
@@ -360,7 +360,7 @@ export class AdminAlbumsPage extends LitElement {
       this.hideDeleteConfirm();
       void this.loadAlbums(); // Reload the list
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to delete album';
+      this.error = err instanceof Error ? err.message : 'Failed to delete gallery';
       this.hideDeleteConfirm();
     }
   }
@@ -389,7 +389,7 @@ export class AdminAlbumsPage extends LitElement {
       return html`
         <admin-header .siteTitle=${siteTitle} currentPage="albums"></admin-header>
         <div class="container">
-          <div class="loading">Loading albums...</div>
+          <div class="loading">Loading galleries...</div>
         </div>
 
         <toast-notification
@@ -422,15 +422,15 @@ export class AdminAlbumsPage extends LitElement {
   private renderAlbums() {
     return html`
       <div class="page-header">
-        <h1 class="page-title">Albums</h1>
-        <a href=${routes.admin.newAlbum()} class="btn btn-primary" @click=${handleNavClick}>New Album</a>
+        <h1 class="page-title">Galleries</h1>
+        <a href=${routes.admin.newAlbum()} class="btn btn-primary" @click=${handleNavClick}>New Gallery</a>
       </div>
         ${
           this.albums.length === 0
             ? html`
                 <div class="empty-state">
-                  <h2>No albums yet</h2>
-                  <p>Create your first album to get started</p>
+                  <h2>No galleries yet</h2>
+                  <p>Create your first gallery to get started</p>
                   <a
                     href=${routes.admin.newAlbum()}
                     class="btn btn-primary"
@@ -497,7 +497,7 @@ export class AdminAlbumsPage extends LitElement {
           ? html`
               <div class="modal-overlay" @click=${() => this.hideDeleteConfirm()}>
                 <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
-                  <h2>Delete Album?</h2>
+                  <h2>Delete Gallery?</h2>
                   <p>
                     Are you sure you want to delete
                     <strong>${this.deleteConfirm.album?.title}</strong>? This action cannot be

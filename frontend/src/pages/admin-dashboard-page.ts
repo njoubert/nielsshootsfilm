@@ -288,7 +288,7 @@ export class AdminDashboardPage extends LitElement {
 
       <div class="stats-grid">
         <div class="stat-card">
-          <p class="stat-label">Total Albums</p>
+          <p class="stat-label">Total Galleries</p>
           <p class="stat-value">${stats.totalAlbums}</p>
           <p class="stat-meta">${stats.publicAlbums} public</p>
         </div>
@@ -298,16 +298,16 @@ export class AdminDashboardPage extends LitElement {
           <p class="stat-value">${stats.totalPhotos}</p>
           <p class="stat-meta">
             ${stats.totalAlbums > 0
-              ? `Avg ${Math.round(stats.totalPhotos / stats.totalAlbums)} per album`
+              ? `Avg ${Math.round(stats.totalPhotos / stats.totalAlbums)} per gallery`
               : ''}
           </p>
         </div>
 
         <div class="stat-card">
-          <p class="stat-label">Portfolio Album</p>
+          <p class="stat-label">Portfolio Gallery</p>
           <p class="stat-value">${stats.portfolioAlbum ? '✓' : '—'}</p>
           <p class="stat-meta">
-            ${stats.portfolioAlbum ? stats.portfolioAlbum.title : 'No portfolio album set'}
+            ${stats.portfolioAlbum ? stats.portfolioAlbum.title : 'No portfolio gallery set'}
           </p>
         </div>
       </div>
@@ -317,14 +317,14 @@ export class AdminDashboardPage extends LitElement {
         <div class="actions-grid">
           <a href=${routes.admin.newAlbum()} class="action-card" @click=${handleNavClick}>
             <div class="action-icon">📸</div>
-            <h3 class="action-title">Create Album</h3>
-            <p class="action-description">Start a new photo album</p>
+            <h3 class="action-title">Create Gallery</h3>
+            <p class="action-description">Start a new photo gallery</p>
           </a>
 
           <a href=${routes.admin.albums()} class="action-card" @click=${handleNavClick}>
             <div class="action-icon">📚</div>
-            <h3 class="action-title">Manage Albums</h3>
-            <p class="action-description">View and edit all albums</p>
+            <h3 class="action-title">Manage Galleries</h3>
+            <p class="action-description">View and edit all galleries</p>
           </a>
 
           <a href=${routes.admin.settings()} class="action-card" @click=${handleNavClick}>

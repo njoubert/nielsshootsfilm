@@ -653,17 +653,16 @@ export class AdminSettingsPage extends LitElement {
             <h2 class="section-title">Portfolio Settings</h2>
 
             <div class="form-group">
-              <label for="portfolio-album">Main Portfolio Album</label>
+              <label for="portfolio-album">Main Portfolio Gallery</label>
               <select
                 id="portfolio-album"
-                .value=${this.config?.portfolio?.main_album_id || ''}
                 @change=${(e: Event) =>
                   this.updateConfigField(
                     'portfolio.main_album_id',
                     (e.target as HTMLSelectElement).value
                   )}
               >
-                <option value="">-- Select Album --</option>
+                <option value="">-- Select Gallery --</option>
                 ${this.albums.map(
                   (album) => html`
                     <option
@@ -675,7 +674,7 @@ export class AdminSettingsPage extends LitElement {
                   `
                 )}
               </select>
-              <p class="help-text">This album will be featured on your home page</p>
+              <p class="help-text">This gallery will be featured on your home page</p>
             </div>
 
             <button type="submit" class="btn btn-primary" ?disabled=${this.saving}>

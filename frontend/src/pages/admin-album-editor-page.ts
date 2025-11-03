@@ -704,7 +704,7 @@ export class AdminAlbumEditorPage extends LitElement {
     try {
       this.album = await fetchAlbumById(this.albumId);
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to load album';
+      this.error = err instanceof Error ? err.message : 'Failed to load gallery';
     } finally {
       this.loading = false;
     }
@@ -723,7 +723,7 @@ export class AdminAlbumEditorPage extends LitElement {
         !this.album.password_hash &&
         !this.albumPassword
       ) {
-        this.error = 'Password is required for password-protected albums';
+        this.error = 'Password is required for password-protected galleries';
         this.saving = false;
         return;
       }
@@ -737,7 +737,7 @@ export class AdminAlbumEditorPage extends LitElement {
           await setAlbumPassword(this.albumId, this.albumPassword);
         }
 
-        this.success = 'Album updated successfully';
+        this.success = 'Gallery updated successfully';
         this.hasUnsavedChanges = false; // Clear unsaved changes flag
         // Clear password field after successful save
         this.albumPassword = '';
@@ -761,7 +761,7 @@ export class AdminAlbumEditorPage extends LitElement {
         navigateTo(routes.admin.editAlbum(newAlbum.id));
       }
     } catch (err) {
-      this.error = err instanceof Error ? err.message : 'Failed to save album';
+      this.error = err instanceof Error ? err.message : 'Failed to save gallery';
     } finally {
       this.saving = false;
     }
@@ -799,7 +799,7 @@ export class AdminAlbumEditorPage extends LitElement {
     // Check for unsaved changes
     if (this.hasUnsavedChanges) {
       const shouldSave = confirm(
-        'You have unsaved changes. Would you like to save them before viewing the album?'
+        'You have unsaved changes. Would you like to save them before viewing the gallery?'
       );
 
       if (shouldSave) {
@@ -843,7 +843,7 @@ export class AdminAlbumEditorPage extends LitElement {
 
   private async uploadFiles(files: File[]) {
     if (!this.albumId || this.albumId === 'new') {
-      this.error = 'Please save the album first before uploading photos';
+      this.error = 'Please save the gallery first before uploading photos';
       return;
     }
 
@@ -946,7 +946,7 @@ export class AdminAlbumEditorPage extends LitElement {
 
     const photoCount = this.album.photos.length;
     const confirmed = confirm(
-      `Are you sure you want to delete ALL ${photoCount} photo(s) from this album? The album itself will remain. This action cannot be undone.`
+      `Are you sure you want to delete ALL ${photoCount} photo(s) from this gallery? The gallery itself will remain. This action cannot be undone.`
     );
 
     if (!confirmed) return;
@@ -995,7 +995,7 @@ export class AdminAlbumEditorPage extends LitElement {
     if (!this.album?.id) return;
 
     const confirmed = confirm(
-      `Are you sure you want to delete the album "${this.album.title}"? This action cannot be undone.`
+      `Are you sure you want to delete the gallery "${this.album.title}"? This action cannot be undone.`
     );
 
     if (!confirmed) return;
@@ -1156,14 +1156,14 @@ export class AdminAlbumEditorPage extends LitElement {
       <admin-header .siteTitle=${siteTitle} currentPage="albums"></admin-header>
 
       <div class="page-header">
-        <h1 class="page-title">${isNew ? 'Create Album' : 'Edit Album'}</h1>
+        <h1 class="page-title">${isNew ? 'Create Gallery' : 'Edit Gallery'}</h1>
       </div>
 
       <div class="layout-wrapper">
         <div class="sidebar">
           <form @submit=${(e: Event) => this.handleSubmit(e)}>
             <div class="form-section">
-              <h2>Album Details</h2>
+              <h2>Gallery Details</h2>
 
               <div class="form-group">
                 <label for="title">Title *</label>
@@ -1223,11 +1223,11 @@ export class AdminAlbumEditorPage extends LitElement {
                 ${this.album.visibility === 'password_protected'
                   ? html`
                       <div class="form-group">
-                        <label for="album_password">Album Password *</label>
+                        <label for="album_password">Gallery Password *</label>
                         <input
                           type="password"
                           id="album_password"
-                          placeholder="Enter password for this album"
+                          placeholder="Enter password for this gallery"
                           @input=${(e: Event) => {
                             const input = e.target as HTMLInputElement;
                             this.albumPassword = input.value;
@@ -1238,7 +1238,7 @@ export class AdminAlbumEditorPage extends LitElement {
                         >
                           ${this.album.password_hash
                             ? 'Leave blank to keep current password'
-                            : 'Required for password-protected albums'}
+                            : 'Required for password-protected galleries'}
                         </small>
                       </div>
                     `
@@ -1282,7 +1282,7 @@ export class AdminAlbumEditorPage extends LitElement {
                   ?disabled=${this.saving}
                   style="flex: 1;"
                 >
-                  ${this.saving ? 'Saving...' : isNew ? 'Create Album' : 'Save'}
+                  ${this.saving ? 'Saving...' : isNew ? 'Create Gallery' : 'Save'}
                 </button>
               </div>
             </div>
@@ -1313,7 +1313,7 @@ export class AdminAlbumEditorPage extends LitElement {
                       ?disabled=${this.saving}
                       style="flex: 1;"
                     >
-                      Delete Album
+                      Delete Gallery
                     </button>
                   </div>
                 </div>

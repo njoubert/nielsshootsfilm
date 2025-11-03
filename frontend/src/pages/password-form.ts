@@ -118,7 +118,7 @@ export class PasswordForm extends LitElement {
     return html`
       <div class="form-container">
         <h2 class="title">${this.albumTitle}</h2>
-        <p class="subtitle">This album is password protected</p>
+        <p class="subtitle">This gallery is password protected</p>
 
         <form @submit=${(e: Event) => this.handleSubmit(e)}>
           <div class="form-group">
@@ -141,7 +141,7 @@ export class PasswordForm extends LitElement {
                   <loading-spinner></loading-spinner>
                 </div>
               `
-            : html` <button type="submit" ?disabled=${this.loading}>Access Album</button> `}
+            : html` <button type="submit" ?disabled=${this.loading}>Access Gallery</button> `}
         </form>
       </div>
     `;
@@ -161,7 +161,7 @@ export class PasswordForm extends LitElement {
     }
 
     if (!this.passwordHash) {
-      this.error = 'Album configuration error - no password hash';
+      this.error = 'Gallery configuration error - no password hash';
       return;
     }
 

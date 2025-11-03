@@ -354,7 +354,7 @@ export class AlbumPhotoPage extends LitElement {
     try {
       const album = await fetchAlbumBySlug(this.albumSlug);
       if (!album) {
-        this.error = 'Album not found';
+        this.error = 'Gallery not found';
         this.loading = false;
         return;
       }
@@ -364,7 +364,7 @@ export class AlbumPhotoPage extends LitElement {
       // Find the photo by ID
       const index = album.photos.findIndex((p: Photo) => p.id === this.photoId);
       if (index === -1) {
-        this.error = 'Photo not found in album';
+        this.error = 'Photo not found in gallery';
         this.loading = false;
         return;
       }
@@ -376,7 +376,7 @@ export class AlbumPhotoPage extends LitElement {
       // Load the current photo
       this.loadCurrentPhoto();
     } catch {
-      this.error = 'Failed to load album';
+      this.error = 'Failed to load gallery';
       this.loading = false;
     }
   }

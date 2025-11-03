@@ -82,7 +82,7 @@ export class PortfolioPage extends LitElement {
       this.siteConfig = siteConfig;
 
       if (!this.album) {
-        this.error = 'No portfolio album found';
+        this.error = 'No portfolio gallery found';
       }
     } catch (err) {
       this.error = 'Failed to load portfolio';
@@ -104,7 +104,7 @@ export class PortfolioPage extends LitElement {
     if (this.error || !this.album) {
       return html`
         <div class="error-container">
-          <p>${this.error || 'Album not found'}</p>
+          <p>${this.error || 'Gallery not found'}</p>
         </div>
       `;
     }

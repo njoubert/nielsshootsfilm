@@ -36,7 +36,7 @@ describe('AdminHeader', () => {
 
     expect(tabs).to.have.length(3);
     expect(tabs?.[0].textContent?.trim()).to.equal('Dashboard');
-    expect(tabs?.[1].textContent?.trim()).to.equal('Albums');
+    expect(tabs?.[1].textContent?.trim()).to.equal('Galleries');
     expect(tabs?.[2].textContent?.trim()).to.equal('Settings');
   });
 
@@ -47,7 +47,7 @@ describe('AdminHeader', () => {
     const tabs = el.shadowRoot?.querySelectorAll('.nav-tabs a');
 
     expect(tabs?.[0].classList.contains('active')).to.be.false;
-    expect(tabs?.[1].classList.contains('active')).to.be.true; // Albums tab
+    expect(tabs?.[1].classList.contains('active')).to.be.true; // Galleries tab
     expect(tabs?.[2].classList.contains('active')).to.be.false;
   });
 

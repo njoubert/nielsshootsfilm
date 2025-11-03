@@ -119,7 +119,7 @@ export class AlbumListPage extends LitElement {
       this.loading = true;
       this.albums = await fetchPublicAlbums();
     } catch (err) {
-      this.error = 'Failed to load albums';
+      this.error = 'Failed to load galleries';
       console.error(err);
     } finally {
       this.loading = false;
@@ -146,7 +146,7 @@ export class AlbumListPage extends LitElement {
     return html`
       <div class="container">
         <div class="header">
-          <h1 class="title">Albums</h1>
+          <h1 class="title">Galleries</h1>
           <p class="subtitle">Explore the collection</p>
         </div>
 
@@ -167,7 +167,7 @@ export class AlbumListPage extends LitElement {
             `
           : html`
               <div class="empty-state">
-                <p>No public albums available at this time.</p>
+                <p>No public galleries available at this time.</p>
               </div>
             `}
       </div>
