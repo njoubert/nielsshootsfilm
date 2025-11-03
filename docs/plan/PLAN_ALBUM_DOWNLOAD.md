@@ -1,17 +1,95 @@
 # Plan: Album Download Feature
 
-## Update: Profiling
+## Update: Simple plan after ZIP profiling
 
 I profiled how long it takes to zip files when using store-only, aka, no compression.
 Even on the mac mini I can create a store-only zip file of the entire 6GB uploads directory in 15 seconds. The `tres hermanos` album with over 200 photos takes under 4 seconds.
 
 This suggests to me that we likely want to start with a very simple approach that has none of the complexity of this plan:
 
-- The user clicks on download
-- We spawn a request, put up a spinner saying 'preparing download...'
-- Everything happens synchronously, and the file gets streamed back to the user.
+- The user clicks on album download
+- we take them to a download page, with the thumbnail of the cover photo.
+- We give them three options - thumbnail quality, 4k display quality, or originals
+- when they click to get the download, we spawn a request, put up a spinner saying 'preparing download...'
+- on the backend, everything happens synchronously, we create the temporary zip file, and then the download starts.
 
-## Original Plan
+### Implementation
+
+**Complexity**: Small
+**Estimated Effort**: 1-2 days
+
+#### Backend (0.5 days)
+
+1. **New endpoint**: `GET /api/albums/{slug}/download?quality={thumbnail|display|original}`
+
+   - Check `allow_downloads` flag → 403 if false
+   - Get album and photos from AlbumService
+   - Determine photo directory based on quality parameter:
+     - `thumbnail` → `/uploads/thumbnails/`
+     - `display` → `/uploads/display/`
+     - `original` → `/uploads/originals/`
+   - Create ZIP synchronously using `archive/zip` with Store method (no compression)
+   - Stream ZIP directly to HTTP response with headers:
+
+     ```go
+     Content-Type: application/zip
+     Content-Disposition: attachment; filename="{album-slug}-{quality}.zip"
+     ```
+
+   - No temp files needed - stream directly from photo files to ZIP to response
+
+2. **Error handling**:
+   - Album not found → 404
+   - Downloads disabled → 403 with clear message
+   - Photo file missing → Skip photo, log warning, continue
+   - Disk read errors → 500 with error message
+
+#### Frontend (0.5-1 day)
+
+1. **Album Detail Page** (`album-detail-page.ts`):
+
+   - Add download button below hero image (only if `album.allow_downloads === true`)
+   - Button links to `/albums/{slug}/download`
+
+2. **Album Download Page** (`album-download-page.ts`):
+
+   - URL: `/albums/{slug}/download`
+   - Shows album cover thumbnail and title
+   - Three quality options as buttons/links:
+     - "Thumbnail Quality" → starts download for thumbnails
+     - "Display Quality (4K)" → starts download for display versions
+     - "Original Quality" → starts download for originals
+   - On button click:
+     - Show spinner overlay immediately with "Preparing download..."
+     - Trigger download: `window.location.href = /api/albums/{slug}/download?quality={quality}`
+     - Browser handles the download automatically
+     - Spinner stays until browser starts download (user sees save dialog)
+   - "Back to Album" button to return to album detail page
+   - Check if downloads allowed on page load → show error if not
+
+3. **Routing**:
+   - Add route: `/albums/:slug/download` → `album-download-page`
+   - Add to navigation helpers: `routes.albumDownload(slug)`
+
+#### Key Simplifications
+
+- **No async/polling**: Everything synchronous, browser handles download progress
+- **No temp files**: Stream directly from source photos to ZIP to HTTP response
+- **No caching**: Generate fresh every time (4 seconds for 200 photos is fast enough)
+- **No status tracking**: Simple request/response, browser shows download progress
+- **No cleanup jobs**: Nothing to clean up since we don't write temp files
+- **Shareable links**: URLs like `/albums/my-trip/download?quality=original` can be shared directly
+
+#### Testing
+
+- [ ] Small album (5 photos) - all three qualities
+- [ ] Large album (200+ photos) - all three qualities
+- [ ] Album with downloads disabled
+- [ ] Missing photo files (should skip and continue)
+- [ ] Verify original filenames preserved in ZIP
+- [ ] Test shareable download links work correctly
+
+## Original Complex Plan
 
 **Date**: November 2, 2025
 **Status**: Approved - Ready for Implementation
