@@ -43,7 +43,7 @@ func (h *AlbumHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, map[string]interface{}{
+	respondJSON(w, http.StatusOK, map[string]any{
 		"albums": albums,
 	})
 }
@@ -209,7 +209,7 @@ func (h *AlbumHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 		uploadedPhotos = append(uploadedPhotos, *photo)
 	}
 
-	respondJSON(w, http.StatusOK, map[string]interface{}{
+	respondJSON(w, http.StatusOK, map[string]any{
 		"uploaded": uploadedPhotos,
 		"errors":   errors,
 	})
@@ -290,7 +290,7 @@ func (h *AlbumHandler) DeleteAllPhotos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return result
-	response := map[string]interface{}{
+	response := map[string]any{
 		"deleted": len(album.Photos) - len(deletionErrors),
 		"total":   len(album.Photos),
 	}
@@ -417,7 +417,7 @@ func (h *AlbumHandler) ReorderPhotos(w http.ResponseWriter, r *http.Request) {
 }
 
 // respondJSON writes a JSON response.
-func respondJSON(w http.ResponseWriter, status int, data interface{}) {
+func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(data); err != nil {

@@ -79,7 +79,7 @@ func TestFileService_ReadJSON_FileNotFound(t *testing.T) {
 	fs, err := NewFileService(tmpDir)
 	require.NoError(t, err)
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = fs.ReadJSON("nonexistent.json", &data)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to read file")

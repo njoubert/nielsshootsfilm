@@ -161,7 +161,7 @@ func TestAlbumJSONFields(t *testing.T) {
 	}
 
 	// Parse as generic map to check field names
-	var m map[string]interface{}
+	var m map[string]any
 	if err := json.Unmarshal(data, &m); err != nil {
 		t.Fatalf("Failed to unmarshal: %v", err)
 	}
@@ -272,7 +272,7 @@ func TestPhotoJSONFields(t *testing.T) {
 		t.Fatalf("Failed to marshal: %v", err)
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	if err := json.Unmarshal(data, &m); err != nil {
 		t.Fatalf("Failed to unmarshal: %v", err)
 	}

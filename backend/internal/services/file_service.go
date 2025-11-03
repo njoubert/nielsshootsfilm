@@ -56,7 +56,7 @@ func (fs *FileService) getFileLock(filename string) *sync.RWMutex {
 }
 
 // ReadJSON reads and unmarshals JSON from a file.
-func (fs *FileService) ReadJSON(filename string, v interface{}) error {
+func (fs *FileService) ReadJSON(filename string, v any) error {
 	lock := fs.getFileLock(filename)
 	lock.RLock()
 	defer lock.RUnlock()
@@ -77,7 +77,7 @@ func (fs *FileService) ReadJSON(filename string, v interface{}) error {
 }
 
 // WriteJSON marshals and writes JSON to a file atomically with backup.
-func (fs *FileService) WriteJSON(filename string, v interface{}) error {
+func (fs *FileService) WriteJSON(filename string, v any) error {
 	lock := fs.getFileLock(filename)
 	lock.Lock()
 	defer lock.Unlock()
