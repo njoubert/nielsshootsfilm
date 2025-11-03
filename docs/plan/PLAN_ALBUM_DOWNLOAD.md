@@ -1,5 +1,18 @@
 # Plan: Album Download Feature
 
+## Update: Profiling
+
+I profiled how long it takes to zip files when using store-only, aka, no compression.
+Even on the mac mini I can create a store-only zip file of the entire 6GB uploads directory in 15 seconds. The `tres hermanos` album with over 200 photos takes under 4 seconds.
+
+This suggests to me that we likely want to start with a very simple approach that has none of the complexity of this plan:
+
+- The user clicks on download
+- We spawn a request, put up a spinner saying 'preparing download...'
+- Everything happens synchronously, and the file gets streamed back to the user.
+
+## Original Plan
+
 **Date**: November 2, 2025
 **Status**: Approved - Ready for Implementation
 **Complexity**: Large
