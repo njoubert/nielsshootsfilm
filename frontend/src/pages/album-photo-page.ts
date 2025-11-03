@@ -320,8 +320,8 @@ export class AlbumPhotoPage extends LitElement {
     this.disableBodyScroll(true);
     void this.loadAlbumData();
 
-    // Request fullscreen on mobile devices
-    void this.requestFullscreenIfMobile();
+    // Request fullscreen when opening photo viewer
+    void this.enterFullscreen();
   }
 
   disconnectedCallback() {
@@ -689,18 +689,13 @@ export class AlbumPhotoPage extends LitElement {
     }
   }
 
-  private async requestFullscreenIfMobile() {
-    // Only request fullscreen on mobile devices
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) return;
-
+  private async enterFullscreen() {
     try {
       // Request fullscreen on the host element
-      if (this.requestFullscreen) {
-        await this.requestFullscreen();
-      }
+      await super.requestFullscreen();
     } catch (err) {
       // Fullscreen request failed - this is normal if user hasn't interacted yet
+      // or if the browser doesn't support fullscreen
       console.debug('Fullscreen request failed:', err);
     }
   }
