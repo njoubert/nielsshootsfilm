@@ -277,7 +277,7 @@ export class AdminHeader extends LitElement {
             class="nav-tab ${this.currentPage === 'albums' ? 'active' : ''}"
             @click=${handleNavClick}
           >
-            Albums
+            Galleries
           </a>
           <a
             href=${routes.admin.settings()}
