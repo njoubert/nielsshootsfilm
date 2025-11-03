@@ -416,6 +416,46 @@ func (h *AlbumHandler) ReorderPhotos(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// DownloadAlbum streams a ZIP file containing album photos at the requested quality level.
+func (h *AlbumHandler) DownloadAlbum(w http.ResponseWriter, r *http.Request) {
+	slug := chi.URLParam(r, "slug")
+	quality := r.URL.Query().Get("quality")
+
+	// Validate quality parameter
+	if quality != "thumbnail" && quality != "display" && quality != "original" {
+		http.Error(w, "Invalid quality parameter. Must be: thumbnail, display, or original", http.StatusBadRequest)
+		return
+	}
+
+	// Get album by slug
+	album, err := h.albumService.GetBySlug(slug)
+	if err != nil {
+		if err.Error() == "album not found" {
+			http.Error(w, "Album not found", http.StatusNotFound)
+			return
+		}
+		h.logger.Error("failed to get album", slog.String("error", err.Error()))
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if downloads are allowed for this album
+	if !album.AllowDownloads {
+		http.Error(w, "Downloads are not enabled for this album", http.StatusForbidden)
+		return
+	}
+
+	// Stream the ZIP file
+	if err := h.imageService.StreamAlbumZIP(w, album, quality); err != nil {
+		h.logger.Error("failed to stream album ZIP",
+			slog.String("album", album.Slug),
+			slog.String("quality", quality),
+			slog.String("error", err.Error()))
+		// Don't write error response as headers may already be sent
+		return
+	}
+}
+
 // respondJSON writes a JSON response.
 func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")

@@ -10,6 +10,7 @@ import { themeManager } from '../utils/theme-manager';
 
 // Import all public components
 import '../pages/album-detail-page';
+import '../pages/album-download-page';
 import '../pages/album-list-page';
 import '../pages/album-photo-page';
 import '../pages/funsies-page';
@@ -124,11 +125,12 @@ export class AppShell extends LitElement {
     try {
       // Initialize router with admin routes
       this.router = new Router([
-        // Public routes
+        // Public routes (order matters - most specific first!)
         { path: '/', component: 'portfolio-page' },
         { path: '/albums', component: 'album-list-page' },
-        { path: '/albums/:slug', component: 'album-detail-page' },
+        { path: '/albums/:slug/download', component: 'album-download-page' },
         { path: '/albums/:slug/photo/:id', component: 'album-photo-page' },
+        { path: '/albums/:slug', component: 'album-detail-page' },
         { path: '/funsies', component: 'funsies-page' },
 
         // Admin routes (with auth guard)
@@ -264,6 +266,8 @@ export class AppShell extends LitElement {
         return html`<album-list-page></album-list-page>`;
       case 'album-detail-page':
         return html`<album-detail-page .slug=${params.slug || ''}></album-detail-page>`;
+      case 'album-download-page':
+        return html`<album-download-page .slug=${params.slug || ''}></album-download-page>`;
       case 'album-photo-page':
         return html`<album-photo-page
           .albumSlug=${params.slug || ''}

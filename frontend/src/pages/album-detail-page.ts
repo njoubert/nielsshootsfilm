@@ -1,11 +1,18 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import downloadIcon from '../assets/icons/download-simple.svg?raw';
 import '../components/album-cover-hero';
 import '../components/loading-spinner';
 import '../components/photo-grid';
 import type { Album, SiteConfig } from '../types/data-models';
 import { fetchAlbumBySlug, fetchSiteConfig, hasAlbumAccess } from '../utils/api';
-import { createPhotoClickHandler, navigateToPhoto } from '../utils/navigation';
+import {
+  createPhotoClickHandler,
+  handleNavClick,
+  navigateToPhoto,
+  routes,
+} from '../utils/navigation';
 import './password-form';
 
 /**
@@ -40,15 +47,31 @@ export class AlbumDetailPage extends LitElement {
       text-align: center;
     }
 
+    .info-section {
+      margin: 2rem 0;
+      padding: 0 1rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+      min-height: 2.5rem;
+    }
+
     .description-section {
       max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 2rem;
+      flex: 0 1 800px;
+      padding-right: 3.5rem;
     }
 
     .description {
       line-height: 1.8;
       color: var(--color-text-secondary);
+    }
+
+    .album-actions {
+      position: absolute;
+      right: 1rem;
+      top: 0;
     }
 
     .photos-section {
@@ -60,6 +83,31 @@ export class AlbumDetailPage extends LitElement {
       align-items: center;
       justify-content: center;
       min-height: 50vh;
+    }
+
+    .download-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .download-button:hover {
+      color: var(--color-text-primary);
+    }
+
+    .download-button svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      stroke: currentColor;
     }
   `;
 
@@ -178,7 +226,7 @@ export class AlbumDetailPage extends LitElement {
         .subtitle=${this.album.subtitle || ''}
       ></album-cover-hero>
 
-      ${this.album.description ? this.renderDescription() : ''}
+      ${this.album.description || this.album.allow_downloads ? this.renderInfoSection() : ''}
 
       <div class="photos-section">
         <photo-grid
@@ -194,10 +242,30 @@ export class AlbumDetailPage extends LitElement {
     `;
   }
 
-  private renderDescription() {
+  private renderInfoSection() {
     return html`
-      <div class="description-section">
-        <p class="description">${this.album?.description}</p>
+      <div class="info-section">
+        ${this.album?.description
+          ? html`
+              <div class="description-section">
+                <p class="description">${this.album.description}</p>
+              </div>
+            `
+          : ''}
+        ${this.album?.allow_downloads
+          ? html`
+              <div class="album-actions">
+                <a
+                  href=${routes.albumDownload(this.slug)}
+                  class="download-button"
+                  @click=${handleNavClick}
+                  title="Download Album"
+                >
+                  ${unsafeSVG(downloadIcon)}
+                </a>
+              </div>
+            `
+          : ''}
       </div>
     `;
   }

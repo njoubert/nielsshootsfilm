@@ -100,6 +100,9 @@ export const routes = {
   /** Album detail page: '/albums/:slug' */
   album: (slug: string) => `/albums/${slug}`,
 
+  /** Album download page: '/albums/:slug/download' */
+  albumDownload: (slug: string) => `/albums/${slug}/download`,
+
   /** Photo viewer page: '/albums/:slug/photo/:photoId' */
   photo: (albumSlug: string, photoId: string) => `/albums/${albumSlug}/photo/${photoId}`,
 

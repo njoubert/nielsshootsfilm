@@ -1,6 +1,7 @@
 package services
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
 	"io"
@@ -541,4 +542,108 @@ func formatBytes(bytes int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+// StreamAlbumZIP creates and streams a ZIP file containing all photos from an album at the specified quality level.
+func (s *ImageService) StreamAlbumZIP(w http.ResponseWriter, album *models.Album, quality string) error {
+	// Determine subdirectory based on quality
+	var subdir string
+	switch quality {
+	case "thumbnail":
+		subdir = "thumbnails"
+	case "display":
+		subdir = "display"
+	case "original":
+		subdir = "originals"
+	default:
+		return fmt.Errorf("invalid quality: %s", quality)
+	}
+
+	// Set response headers
+	filename := fmt.Sprintf("%s-%s.zip", album.Slug, quality)
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
+
+	// Create ZIP writer that writes directly to response
+	zipWriter := zip.NewWriter(w)
+	defer func() {
+		if err := zipWriter.Close(); err != nil {
+			s.logger.Error("failed to close ZIP writer", slog.String("error", err.Error()))
+		}
+	}()
+
+	// Add each photo to the ZIP
+	skippedCount := 0
+	for _, photo := range album.Photos {
+		// Determine the actual filename based on quality
+		// We extract the filename from the URL since that's the source of truth
+		var photoFilename string
+		switch quality {
+		case "thumbnail":
+			photoFilename = filepath.Base(photo.URLThumbnail)
+		case "display":
+			photoFilename = filepath.Base(photo.URLDisplay)
+		case "original":
+			photoFilename = filepath.Base(photo.URLOriginal)
+		}
+
+		// Construct full file path
+		photoPath := filepath.Join(s.uploadDir, subdir, photoFilename)
+
+		// Check if file exists
+		if _, err := os.Stat(photoPath); os.IsNotExist(err) {
+			s.logger.Warn("photo file not found, skipping",
+				slog.String("album", album.Slug),
+				slog.String("photo_id", photo.ID),
+				slog.String("path", photoPath))
+			skippedCount++
+			continue
+		}
+
+		// Open source file
+		// #nosec G304 -- photoPath is constructed from validated album data and filepath.Base() extracts only the filename
+		sourceFile, err := os.Open(photoPath)
+		if err != nil {
+			s.logger.Error("failed to open photo file",
+				slog.String("photo_id", photo.ID),
+				slog.String("path", photoPath),
+				slog.String("error", err.Error()))
+			skippedCount++
+			continue
+		}
+
+		// Create entry in ZIP with original filename using Store method (no compression)
+		// Photos are already compressed, so we don't want to waste CPU trying to compress them further
+		header := &zip.FileHeader{
+			Name:   photo.FilenameOriginal,
+			Method: zip.Store, // No compression
+		}
+		zipEntry, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			_ = sourceFile.Close()
+			return fmt.Errorf("failed to create ZIP entry for %s: %w", photo.FilenameOriginal, err)
+		}
+
+		// Copy file contents to ZIP (streaming, no buffering entire file)
+		if _, err := io.Copy(zipEntry, sourceFile); err != nil {
+			_ = sourceFile.Close()
+			return fmt.Errorf("failed to write photo to ZIP: %w", err)
+		}
+
+		if err := sourceFile.Close(); err != nil {
+			s.logger.Warn("failed to close source file",
+				slog.String("photo_id", photo.ID),
+				slog.String("error", err.Error()))
+		}
+	}
+
+	if skippedCount > 0 {
+		s.logger.Info("completed album ZIP with skipped files",
+			slog.String("album", album.Slug),
+			slog.String("quality", quality),
+			slog.Int("skipped", skippedCount),
+			slog.Int("total", len(album.Photos)))
+	}
+
+	return nil
 }

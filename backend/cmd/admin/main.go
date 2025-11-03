@@ -148,6 +148,9 @@ func main() {
 		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
 
+	// Public album download endpoint (no auth required, respects allow_downloads flag)
+	r.Get("/api/albums/{slug}/download", albumHandler.DownloadAlbum)
+
 	// Data endpoints for Admin Frontend
 	r.Route("/api", func(r chi.Router) {
 		r.Use(middleware.Auth(authService, logger))
