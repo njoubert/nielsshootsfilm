@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2025-11-02T06:33:39.47324Z",
+  "last_updated": "2025-11-04T05:15:09.501136Z",
   "site": {
     "title": "niels.shoots.film",
     "tagline": "Film Photography Portfolio",
@@ -41,7 +41,7 @@
     }
   },
   "portfolio": {
-    "main_album_id": "a2dad3ef-67ad-43de-b5cf-4b3e49524d77",
+    "main_album_id": "052b6eaf-6cdb-4686-8157-a67bcd21f48d",
     "show_exif_data": true,
     "default_photo_layout": "square",
     "enable_lightbox": true,
