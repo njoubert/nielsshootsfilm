@@ -216,8 +216,9 @@ export class AlbumDetailPage extends LitElement {
       `;
     }
 
-    const coverPhoto =
-      this.album.photos.find((p) => p.id === this.album?.cover_photo_id) || this.album.photos[0];
+    const coverPhoto = this.album.photos
+      ? this.album.photos.find((p) => p.id === this.album?.cover_photo_id) || null
+      : null;
 
     return html`
       <album-cover-hero
