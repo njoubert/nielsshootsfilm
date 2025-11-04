@@ -187,6 +187,7 @@ func main() {
 			r.Delete("/albums/{id}/photos", albumHandler.DeleteAllPhotos)
 			r.Delete("/albums/{id}/photos/{photoId}", albumHandler.DeletePhoto)
 			r.Post("/albums/{id}/set-cover", albumHandler.SetCoverPhoto)
+			r.Post("/albums/{id}/clear-cover", albumHandler.ClearCoverPhoto)
 			r.Post("/albums/{id}/reorder-photos", albumHandler.ReorderPhotos)
 			r.Post("/albums/{id}/set-password", albumHandler.SetPassword)
 			r.Delete("/albums/{id}/password", albumHandler.RemovePassword) // Site configuration

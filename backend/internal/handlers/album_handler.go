@@ -390,6 +390,19 @@ func (h *AlbumHandler) SetCoverPhoto(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// SetCoverPhoto sets the cover photo for an album.
+func (h *AlbumHandler) ClearCoverPhoto(w http.ResponseWriter, r *http.Request) {
+	albumID := chi.URLParam(r, "id")
+
+	if err := h.albumService.ClearCoverPhoto(albumID); err != nil {
+		h.logger.Error("failed to clear cover photo", slog.String("error", err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 // ReorderPhotos reorders photos in an album.
 func (h *AlbumHandler) ReorderPhotos(w http.ResponseWriter, r *http.Request) {
 	albumID := chi.URLParam(r, "id")

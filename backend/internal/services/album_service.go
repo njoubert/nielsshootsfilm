@@ -298,6 +298,18 @@ func (s *AlbumService) SetCoverPhoto(albumID, photoID string) error {
 	return s.Update(albumID, album)
 }
 
+// ClearCoverPhoto clears the cover photo for an album.
+func (s *AlbumService) ClearCoverPhoto(albumID string) error {
+	album, err := s.GetByID(albumID)
+	if err != nil {
+		return err
+	}
+
+	album.CoverPhotoID = ""
+
+	return s.Update(albumID, album)
+}
+
 // ReorderPhotos reorders photos in an album based on the provided photo IDs.
 func (s *AlbumService) ReorderPhotos(albumID string, photoIDs []string) error {
 	album, err := s.GetByID(albumID)

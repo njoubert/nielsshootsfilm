@@ -9,6 +9,7 @@ import '../components/toast-notification';
 import '../components/upload-placeholder';
 import type { Album, Photo, SiteConfig } from '../types/data-models';
 import {
+  clearCoverPhoto,
   createAlbum,
   deleteAlbum,
   deleteAllPhotos,
@@ -991,6 +992,18 @@ export class AdminAlbumEditorPage extends LitElement {
     }
   }
 
+  private async handleClearCoverPhoto() {
+    if (!this.albumId) return;
+
+    try {
+      await clearCoverPhoto(this.albumId);
+      await this.loadAlbum();
+      this.success = 'Cover photo cleared';
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Failed to clear cover photo';
+    }
+  }
+
   private async handleDeleteAlbum() {
     if (!this.album?.id) return;
 
@@ -1273,6 +1286,15 @@ export class AdminAlbumEditorPage extends LitElement {
                         style="flex: 1;"
                       >
                         View
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click=${() => this.handleClearCoverPhoto()}
+                        ?disabled=${this.saving}
+                        style="flex: 1;"
+                      >
+                        Clear Cover Photo
                       </button>
                     `
                   : ''}

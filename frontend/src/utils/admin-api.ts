@@ -495,6 +495,24 @@ export async function setCoverPhoto(albumId: string, photoId: string): Promise<v
 }
 
 /**
+ * Clear album cover photo.
+ */
+export async function clearCoverPhoto(albumId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/albums/${albumId}/clear-cover`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || 'Failed to clear cover photo');
+  }
+}
+
+/**
  * Reorder photos in an album.
  */
 export async function reorderPhotos(albumId: string, photoIds: string[]): Promise<void> {

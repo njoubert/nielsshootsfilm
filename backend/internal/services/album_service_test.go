@@ -293,6 +293,12 @@ func TestAlbumService_SetCoverPhoto(t *testing.T) {
 	result, err := service.GetByID(album.ID)
 	require.NoError(t, err)
 	assert.Equal(t, photo2ID, result.CoverPhotoID)
+
+	// Clear cover photo
+	err = service.ClearCoverPhoto(album.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "", result.CoverPhotoID)
+
 }
 
 func TestAlbumService_Validation(t *testing.T) {
