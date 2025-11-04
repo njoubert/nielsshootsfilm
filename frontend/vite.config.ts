@@ -36,8 +36,11 @@ export default defineConfig({
             return;
           }
 
+          // Strip query parameters (e.g., ?_=timestamp for cache busting)
+          const urlPath = req.url.split('?')[0];
+
           const dataPath = resolve(__dirname, '../data');
-          const filePath = resolve(dataPath, req.url.substring(1));
+          const filePath = resolve(dataPath, urlPath.substring(1));
 
           // Security check: ensure path is within data directory
           if (!filePath.startsWith(dataPath)) {
@@ -66,8 +69,11 @@ export default defineConfig({
             return;
           }
 
+          // Strip query parameters (e.g., ?_=timestamp for cache busting)
+          const urlPath = req.url.split('?')[0];
+
           const staticPath = resolve(__dirname, '../static/uploads');
-          const filePath = resolve(staticPath, req.url.substring(1));
+          const filePath = resolve(staticPath, urlPath.substring(1));
 
           // Security check: ensure path is within static/uploads
           if (!filePath.startsWith(staticPath)) {
