@@ -30,6 +30,7 @@ describe('AlbumCard', () => {
       updated_at: '2025-01-01',
       visibility: 'public',
       allow_downloads: true,
+      show_exif: true,
       order: 0,
       photos: [
         {

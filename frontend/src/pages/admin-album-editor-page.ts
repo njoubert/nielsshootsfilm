@@ -749,6 +749,7 @@ export class AdminAlbumEditorPage extends LitElement {
           description: this.album.description,
           visibility: this.album.visibility!,
           allow_downloads: this.album.allow_downloads,
+          show_exif: this.album.show_exif,
           order: this.album.order,
         });
 
@@ -768,7 +769,7 @@ export class AdminAlbumEditorPage extends LitElement {
   }
 
   /**
-   * Auto-save album when certain fields change (visibility, allow_downloads).
+   * Auto-save album when certain fields change (visibility, allow_downloads, show_exif).
    * Skips validation for password since it may not be set yet.
    */
   private async autoSave() {
@@ -1100,7 +1101,7 @@ export class AdminAlbumEditorPage extends LitElement {
   private updateField<K extends keyof Album>(field: K, value: Album[K]) {
     this.album = { ...this.album, [field]: value };
     // Mark as having unsaved changes (unless auto-save fields)
-    if (field !== 'visibility' && field !== 'allow_downloads') {
+    if (field !== 'visibility' && field !== 'allow_downloads' && field !== 'show_exif') {
       this.hasUnsavedChanges = true;
     }
   }
@@ -1257,6 +1258,21 @@ export class AdminAlbumEditorPage extends LitElement {
                     }}
                   />
                   <label for="allow_downloads">Allow downloads</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    id="show_exif"
+                    .checked=${this.album.show_exif ?? true}
+                    @change=${(e: Event) => {
+                      this.updateField('show_exif', (e.target as HTMLInputElement).checked);
+                      void this.autoSave();
+                    }}
+                  />
+                  <label for="show_exif">Show EXIF data</label>
                 </div>
               </div>
 

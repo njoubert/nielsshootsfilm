@@ -18,6 +18,7 @@ type Album struct {
 	PasswordHash   string     `json:"password_hash,omitempty"`
 	ExpirationDate *time.Time `json:"expiration_date,omitempty"`
 	AllowDownloads bool       `json:"allow_downloads"`
+	ShowExif       bool       `json:"show_exif"`
 	Order          int        `json:"order"`
 	ThemeOverride  string     `json:"theme_override,omitempty"` // system, light, dark
 	CreatedAt      time.Time  `json:"created_at"`

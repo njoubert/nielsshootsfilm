@@ -28,7 +28,7 @@ export class AlbumPhotoPage extends LitElement {
   @state() private currentIndex = 0;
   @state() private loading = true;
   @state() private error = '';
-  @state() private showExif = false;
+  @state() private showExif = true;
   @state() private currentPhotoLoaded = false;
   @state() private loadingProgress = 0; // 0-100 percentage
   @state() private showLoadingScreen = false; // Only show after grace period
@@ -360,6 +360,8 @@ export class AlbumPhotoPage extends LitElement {
       }
 
       this.album = album;
+      // Set showExif from album setting, defaulting to true
+      this.showExif = typeof album.show_exif === 'boolean' ? album.show_exif : true;
 
       // Find the photo by ID
       const index = album.photos.findIndex((p: Photo) => p.id === this.photoId);

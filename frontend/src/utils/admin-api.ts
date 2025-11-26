@@ -94,6 +94,7 @@ export interface CreateAlbumRequest {
   description?: string;
   visibility: 'public' | 'unlisted' | 'password_protected';
   allow_downloads?: boolean;
+  show_exif?: boolean;
   order?: number;
 }
 

@@ -16,6 +16,7 @@ describe('AlbumPhotoPage', () => {
     cover_photo_id: 'photo-1',
     visibility: 'public',
     allow_downloads: true,
+    show_exif: true,
     order: 0,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z',
