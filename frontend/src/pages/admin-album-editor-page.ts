@@ -7,7 +7,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import '../components/admin-header';
 import '../components/toast-notification';
 import '../components/upload-placeholder';
-import type { Album, Photo, SiteConfig } from '../types/data-models';
+import type { Album, AlbumLayout, LayoutSize, Photo, SiteConfig } from '../types/data-models';
 import {
   clearCoverPhoto,
   createAlbum,
@@ -25,7 +25,7 @@ import {
 } from '../utils/admin-api';
 import { onLogout } from '../utils/auth-state';
 import { CONCURRENT_UPLOAD_COUNT, MAX_UPLOAD_BATCH_SIZE } from '../utils/constants';
-import { navigateTo, navigateToAlbum, routes } from '../utils/navigation';
+import { navigateTo, routes } from '../utils/navigation';
 
 @customElement('admin-album-editor-page')
 export class AdminAlbumEditorPage extends LitElement {
@@ -811,9 +811,9 @@ export class AdminAlbumEditorPage extends LitElement {
       }
     }
 
-    // Navigate to album view using slug
+    // Open album view in new tab
     if (this.album?.slug) {
-      navigateToAlbum(this.album.slug);
+      navigateTo(routes.album(this.album.slug), { newTab: true });
     }
   }
 
@@ -1256,6 +1256,51 @@ export class AdminAlbumEditorPage extends LitElement {
                       </div>
                     `
                   : html` <div class="form-group"></div> `}
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="layout">Photo Layout</label>
+                  <select
+                    id="layout"
+                    .value=${this.album.layout ||
+                    this.siteConfig?.portfolio.default_album_layout ||
+                    'arc'}
+                    @change=${(e: Event) => {
+                      const value = (e.target as HTMLSelectElement).value as AlbumLayout;
+                      this.updateField('layout', value);
+                      void this.autoSave();
+                    }}
+                  >
+                    <option value="arc">Arc (Justified rows)</option>
+                    <option value="vibe">Vibe (Masonry columns)</option>
+                    <option value="insta">Insta (Square grid)</option>
+                    <option value="fit">Fit (Viewport scroll)</option>
+                    <option value="big">Big (Full width)</option>
+                  </select>
+                </div>
+
+                ${['arc', 'vibe', 'insta'].includes(
+                  this.album.layout || this.siteConfig?.portfolio.default_album_layout || 'arc'
+                )
+                  ? html`
+                      <div class="form-group">
+                        <label for="layout_size">Layout Size</label>
+                        <select
+                          id="layout_size"
+                          .value=${this.album.layout_size || 'large'}
+                          @change=${(e: Event) => {
+                            const value = (e.target as HTMLSelectElement).value as LayoutSize;
+                            this.updateField('layout_size', value);
+                            void this.autoSave();
+                          }}
+                        >
+                          <option value="large">Large (fewer, bigger images)</option>
+                          <option value="small">Small (more, smaller images)</option>
+                        </select>
+                      </div>
+                    `
+                  : html`<div class="form-group"></div>`}
               </div>
 
               <div class="form-group">

@@ -3,8 +3,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import downloadIcon from '../assets/icons/download-simple.svg?raw';
 import '../components/album-cover-hero';
+import '../components/layout-renderer';
 import '../components/loading-spinner';
-import '../components/photo-grid';
 import type { Album, SiteConfig } from '../types/data-models';
 import { fetchAlbumBySlug, fetchSiteConfig, hasAlbumAccess } from '../utils/api';
 import {
@@ -230,15 +230,12 @@ export class AlbumDetailPage extends LitElement {
       ${this.album.description || this.album.allow_downloads ? this.renderInfoSection() : ''}
 
       <div class="photos-section">
-        <photo-grid
+        <layout-renderer
           .photos=${this.album.photos}
-          .layout=${(this.siteConfig?.portfolio.default_photo_layout || 'masonry') as
-            | 'masonry'
-            | 'grid'
-            | 'justified'
-            | 'square'}
+          .layout=${this.album.layout || this.siteConfig?.portfolio.default_album_layout || 'arc'}
+          .size=${this.album.layout_size || 'large'}
           @photo-click=${this.handlePhotoClick}
-        ></photo-grid>
+        ></layout-renderer>
       </div>
     `;
   }

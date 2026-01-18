@@ -38,11 +38,21 @@ import type { Album, Photo } from '../types/data-models';
  * ```typescript
  * navigateTo('/albums/my-album');
  * navigateTo('/admin/settings');
+ * navigateTo('/albums/my-album', { newTab: true }); // Opens in new tab
  * ```
  */
-export function navigateTo(url: string): void {
-  window.history.pushState({}, '', url);
-  window.dispatchEvent(new PopStateEvent('popstate'));
+export interface NavigateOptions {
+  /** If true, opens the URL in a new browser tab instead of navigating in the current tab */
+  newTab?: boolean;
+}
+
+export function navigateTo(url: string, options?: NavigateOptions): void {
+  if (options?.newTab) {
+    window.open(url, '_blank');
+  } else {
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
 }
 
 /**

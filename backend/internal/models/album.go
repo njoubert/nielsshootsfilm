@@ -20,6 +20,8 @@ type Album struct {
 	AllowDownloads bool       `json:"allow_downloads"`
 	Order          int        `json:"order"`
 	ThemeOverride  string     `json:"theme_override,omitempty"` // system, light, dark
+	Layout         string     `json:"layout,omitempty"`         // arc, vibe, insta, fit, big, original
+	LayoutSize     string     `json:"layout_size,omitempty"`    // small, large (default: large)
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
 	AlbumStartDate *time.Time `json:"date_of_album_start,omitempty"`

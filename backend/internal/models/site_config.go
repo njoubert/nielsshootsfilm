@@ -87,11 +87,12 @@ type ThemeColorSet struct {
 
 // PortfolioConfig contains portfolio display settings.
 type PortfolioConfig struct {
-	MainAlbumID    string `json:"main_album_id,omitempty"`
-	ShowExifData   bool   `json:"show_exif_data"`
-	DefaultLayout  string `json:"default_photo_layout,omitempty"`
-	EnableLightbox bool   `json:"enable_lightbox"`
-	ShowPhotoCount bool   `json:"show_photo_count,omitempty"`
+	MainAlbumID        string `json:"main_album_id,omitempty"`
+	ShowExifData       bool   `json:"show_exif_data"`
+	DefaultLayout      string `json:"default_photo_layout,omitempty"`
+	DefaultAlbumLayout string `json:"default_album_layout,omitempty"` // arc, vibe, insta, fit, big, original (default: arc)
+	EnableLightbox     bool   `json:"enable_lightbox"`
+	ShowPhotoCount     bool   `json:"show_photo_count,omitempty"`
 }
 
 // NavigationConfig controls nav menu visibility.

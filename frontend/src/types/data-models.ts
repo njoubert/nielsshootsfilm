@@ -37,6 +37,8 @@ export interface ExifData {
 
 export type AlbumVisibility = 'public' | 'unlisted' | 'password_protected';
 export type ThemeMode = 'system' | 'light' | 'dark';
+export type AlbumLayout = 'arc' | 'vibe' | 'insta' | 'fit' | 'big';
+export type LayoutSize = 'small' | 'large';
 
 export interface Album {
   id: string;
@@ -51,6 +53,8 @@ export interface Album {
   allow_downloads: boolean;
   order: number;
   theme_override?: ThemeMode;
+  layout?: AlbumLayout;
+  layout_size?: LayoutSize;
   created_at: string;
   updated_at: string;
   date_of_album_start?: string;
@@ -134,6 +138,7 @@ export interface PortfolioConfig {
   main_album_id?: string;
   show_exif_data: boolean;
   default_photo_layout?: string;
+  default_album_layout?: AlbumLayout;
   enable_lightbox: boolean;
   show_photo_count?: boolean;
 }
