@@ -9,7 +9,7 @@ import '../components/toast-notification';
 import type { Album, SiteConfig } from '../types/data-models';
 import { deleteAlbum, fetchAdminSiteConfig, fetchAllAlbums } from '../utils/admin-api';
 import { onLogout } from '../utils/auth-state';
-import { handleNavClick, routes } from '../utils/navigation';
+import { handleNavClick, handleNavClickNewTab, routes } from '../utils/navigation';
 
 @customElement('admin-albums-page')
 export class AdminAlbumsPage extends LitElement {
@@ -472,7 +472,7 @@ export class AdminAlbumsPage extends LitElement {
                             <a
                               href=${routes.album(album.slug)}
                               class="btn btn-secondary btn-small"
-                              @click=${handleNavClick}
+                              @click=${handleNavClickNewTab}
                             >
                               View
                             </a>

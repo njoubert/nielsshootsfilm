@@ -8,6 +8,7 @@ import {
   createPhotoClickHandler,
   handleAlbumClickEvent,
   handleNavClick,
+  handleNavClickNewTab,
   navigateTo,
   navigateToAlbum,
   navigateToPhoto,
@@ -61,6 +62,27 @@ describe('Navigation Library', () => {
         navigateTo('/');
 
         expect(pushStateSpy).toHaveBeenCalledWith({}, '', '/');
+      });
+
+      it('should open in new tab when newTab option is true', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+        navigateTo('/albums/test-album', { newTab: true });
+
+        expect(openSpy).toHaveBeenCalledWith('/albums/test-album', '_blank');
+        expect(pushStateSpy).not.toHaveBeenCalled();
+
+        openSpy.mockRestore();
+      });
+
+      it('should not dispatch popstate when opening in new tab', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+        navigateTo('/albums/test-album', { newTab: true });
+
+        expect(dispatchEventSpy).not.toHaveBeenCalled();
+
+        openSpy.mockRestore();
       });
     });
 
@@ -116,6 +138,70 @@ describe('Navigation Library', () => {
         handleNavClick(mockEvent);
 
         expect(pushStateSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('handleNavClickNewTab', () => {
+      it('should prevent default navigation', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const preventDefault = vi.fn();
+        const mockEvent = {
+          preventDefault,
+          currentTarget: {
+            getAttribute: vi.fn().mockReturnValue('/albums'),
+          },
+        } as unknown as Event;
+
+        handleNavClickNewTab(mockEvent);
+
+        expect(preventDefault).toHaveBeenCalledOnce();
+        openSpy.mockRestore();
+      });
+
+      it('should open href in new tab', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const mockEvent = {
+          preventDefault: vi.fn(),
+          currentTarget: {
+            getAttribute: vi.fn().mockReturnValue('/albums/test'),
+          },
+        } as unknown as Event;
+
+        handleNavClickNewTab(mockEvent);
+
+        expect(openSpy).toHaveBeenCalledWith('/albums/test', '_blank');
+        expect(pushStateSpy).not.toHaveBeenCalled();
+        openSpy.mockRestore();
+      });
+
+      it('should not open if href is null', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const mockEvent = {
+          preventDefault: vi.fn(),
+          currentTarget: {
+            getAttribute: vi.fn().mockReturnValue(null),
+          },
+        } as unknown as Event;
+
+        handleNavClickNewTab(mockEvent);
+
+        expect(openSpy).not.toHaveBeenCalled();
+        openSpy.mockRestore();
+      });
+
+      it('should not open if href is empty', () => {
+        const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+        const mockEvent = {
+          preventDefault: vi.fn(),
+          currentTarget: {
+            getAttribute: vi.fn().mockReturnValue(''),
+          },
+        } as unknown as Event;
+
+        handleNavClickNewTab(mockEvent);
+
+        expect(openSpy).not.toHaveBeenCalled();
+        openSpy.mockRestore();
       });
     });
   });

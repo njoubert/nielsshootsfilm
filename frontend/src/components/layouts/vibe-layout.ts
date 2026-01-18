@@ -151,6 +151,7 @@ export class VibeLayout extends LitElement {
     if (!grid || this.photos.length === 0) return;
 
     // Initialize Masonry
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     this.masonry = new Masonry(grid as HTMLElement, {
       itemSelector: '.vibe-item',
       columnWidth: '.grid-sizer',

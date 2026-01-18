@@ -82,6 +82,32 @@ export function handleNavClick(e: Event): void {
   }
 }
 
+/**
+ * Event handler for anchor tag clicks that opens in a new tab.
+ * Prevents the default browser navigation and opens the URL in a new tab.
+ *
+ * Use this on anchor tags to open links in a new browser tab.
+ *
+ * @param e - The click event from an anchor tag
+ *
+ * @example
+ * ```typescript
+ * render() {
+ *   return html`
+ *     <a href="/albums/my-album" @click=${handleNavClickNewTab}>View in New Tab</a>
+ *   `;
+ * }
+ * ```
+ */
+export function handleNavClickNewTab(e: Event): void {
+  e.preventDefault();
+  const link = e.currentTarget as HTMLAnchorElement;
+  const url = link.getAttribute('href');
+  if (url) {
+    navigateTo(url, { newTab: true });
+  }
+}
+
 // ============================================================================
 // Route Builders - Semantic URL Construction
 // ============================================================================
