@@ -22,52 +22,52 @@
 
 **Always prefer these root-level scripts over running npm, vite, npx, or go commands directly.**
 
-- **`./dev.sh`** - Start/stop development servers
+**`./dev.sh`** - Start/stop development servers
 
-  - `./dev.sh` - Restart both frontend and backend
-  - `./dev.sh start` - Start both servers
-  - `./dev.sh stop` - Stop both servers
-  - `./dev.sh status` - Check status of both servers
-  - `./dev.sh frontend start` - Start only frontend
-  - `./dev.sh frontend stop` - Stop only frontend
-  - `./dev.sh frontend status` - Check frontend status
-  - `./dev.sh backend start` - Start only backend
-  - `./dev.sh backend stop` - Stop only backend
-  - `./dev.sh backend status` - Check backend status
+- `./dev.sh` - Restart both frontend and backend
+- `./dev.sh start` - Start both servers
+- `./dev.sh stop` - Stop both servers
+- `./dev.sh status` - Check status of both servers
+- `./dev.sh frontend start` - Start only frontend
+- `./dev.sh frontend stop` - Stop only frontend
+- `./dev.sh frontend status` - Check frontend status
+- `./dev.sh backend start` - Start only backend
+- `./dev.sh backend stop` - Stop only backend
+- `./dev.sh backend status` - Check backend status
 
-  **Status checks**: The status commands check if processes are running AND if they're responding to HTTP requests. Returns clear indicators: ✓ (running), ⚠ (running but not responding), or ✗ (not running).
+**Status checks**: The status commands check if processes are running AND if they're responding to HTTP requests. Returns clear indicators: ✓ (running), ⚠ (running but not responding), or ✗ (not running).
+**`./test.sh`** - Run tests (intelligently dispatches to npm or go)
 
-- **`./test.sh`** - Run tests (intelligently dispatches to npm or go)
+- `./test.sh` - Run all unit tests (backend and frontend)
+- `./test.sh backend` - Run all backend unit tests only
+- `./test.sh frontend` - Run all frontend unit tests only
+- `./test.sh api` - Run API integration tests and schema validation
+- `./test.sh -- backend/...` - Run all backend tests
+- `./test.sh -- backend/internal/handlers` - Run specific backend package tests
+- `./test.sh -- storage-stats.test.ts` - Run specific frontend test file
+- `./test.sh -- frontend/src/components/storage-stats.test.ts` - Run frontend test with full path
+- The `--` separator is optional: `./test.sh backend/...` works too
+- Use this instead of `npm test` or `go test`
+- Automatically detects test type from file path (backend vs frontend)
+- Exits automatically after tests complete (no manual intervention needed)
+- Provides colored output for easy scanning
 
-  - `./test.sh` - Run all unit tests (backend and frontend)
-  - `./test.sh backend` - Run all backend unit tests only
-  - `./test.sh frontend` - Run all frontend unit tests only
-  - `./test.sh api` - Run API integration tests and schema validation
-  - `./test.sh -- backend/...` - Run all backend tests
-  - `./test.sh -- backend/internal/handlers` - Run specific backend package tests
-  - `./test.sh -- storage-stats.test.ts` - Run specific frontend test file
-  - `./test.sh -- frontend/src/components/storage-stats.test.ts` - Run frontend test with full path
-  - The `--` separator is optional: `./test.sh backend/...` works too
-  - Use this instead of `npm test` or `go test`
-  - Automatically detects test type from file path (backend vs frontend)
-  - Exits automatically after tests complete (no manual intervention needed)
-  - Provides colored output for easy scanning
+**`./fmt.sh`** - Format all code (runs prettier, gofmt, etc.)
 
-- **`./fmt.sh`** - Format all code (runs prettier, gofmt, etc.)
+- Use this instead of `npm run format` or `go fmt`
 
-  - Use this instead of `npm run format` or `go fmt`
+**`./build.sh`** - Compile code for distribution
 
-- **`./build.sh`** - Compile code for distribution
+- Use this instead of `npm run build` or `go build`
 
-  - Use this instead of `npm run build` or `go build`
+**`./bootstrap.sh`** - Create environmental files for the app
 
-- **`./bootstrap.sh`** - Create environmental files for the app
+- Sets up data files and admin credentials for first-time setup
 
-  - Sets up data files and admin credentials for first-time setup
+**`./provision.sh`** - Provision developer workstation
 
-- **`./provision.sh`** - Provision developer workstation
-  - Installs all dependencies (Node.js, Go, libvips, shellcheck, etc.)
-  - Run this on a new machine or after cloning the repository
+- Installs all dependencies (Node.js, Go, libvips, shellcheck, etc.)
+- Run this on a new machine or after cloning the repository
 
 **Why use these scripts?**
 
@@ -171,7 +171,7 @@ navigateToAlbum(album.slug);
 // ✅ Photo click handlers - use factory function
 import { createPhotoClickHandler } from '../utils/navigation';
 private handlePhotoClick = createPhotoClickHandler(() => this.album?.slug);
-html`<photo-grid @photo-click=${this.handlePhotoClick}></photo-grid>`;
+html`<layout-renderer @photo-click=${this.handlePhotoClick}></layout-renderer>`;
 
 // ✅ Album click handlers - use direct handler
 import { handleAlbumClickEvent } from '../utils/navigation';

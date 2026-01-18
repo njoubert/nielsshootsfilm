@@ -205,7 +205,7 @@ export function navigateToPhoto(albumSlug: string, photoId: string): void {
 // ============================================================================
 
 /**
- * Creates an event handler for photo-click events from the photo-grid component.
+ * Creates an event handler for photo-click events from layout components.
  * Supports both static and dynamic album slugs for flexibility.
  *
  * @param albumSlug - The album slug (static string or function returning slug)
@@ -216,7 +216,7 @@ export function navigateToPhoto(albumSlug: string, photoId: string): void {
  * private handlePhotoClick = createPhotoClickHandler('my-album');
  *
  * render() {
- *   return html`<photo-grid @photo-click=${this.handlePhotoClick}></photo-grid>`;
+ *   return html`<layout-renderer @photo-click=${this.handlePhotoClick}></layout-renderer>`;
  * }
  * ```
  *
@@ -225,7 +225,7 @@ export function navigateToPhoto(albumSlug: string, photoId: string): void {
  * private handlePhotoClick = createPhotoClickHandler(() => this.album?.slug);
  *
  * render() {
- *   return html`<photo-grid @photo-click=${this.handlePhotoClick}></photo-grid>`;
+ *   return html`<layout-renderer @photo-click=${this.handlePhotoClick}></layout-renderer>`;
  * }
  * ```
  */

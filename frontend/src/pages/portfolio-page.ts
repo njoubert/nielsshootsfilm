@@ -1,8 +1,8 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import '../components/album-cover-hero';
+import '../components/layout-renderer';
 import '../components/loading-spinner';
-import '../components/photo-grid';
 import type { Album, SiteConfig } from '../types/data-models';
 import { fetchMainPortfolioAlbum, fetchSiteConfig } from '../utils/api';
 import { createPhotoClickHandler } from '../utils/navigation';
@@ -123,15 +123,12 @@ export class PortfolioPage extends LitElement {
       ${this.siteConfig?.owner ? this.renderAbout() : ''}
 
       <div class="photos-section">
-        <photo-grid
+        <layout-renderer
           .photos=${this.album.photos}
-          .layout=${(this.siteConfig?.portfolio.default_photo_layout || 'masonry') as
-            | 'masonry'
-            | 'grid'
-            | 'justified'
-            | 'square'}
+          .layout=${this.album.layout || this.siteConfig?.portfolio.default_album_layout || 'insta'}
+          .size=${this.album.layout_size || 'large'}
           @photo-click=${createPhotoClickHandler(() => this.album?.slug)}
-        ></photo-grid>
+        ></layout-renderer>
       </div>
     `;
   }
