@@ -89,8 +89,7 @@ export class AlbumDetailPage extends LitElement {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 2.5rem;
-      height: 2.5rem;
+      gap: 0.5rem;
       color: var(--color-text-secondary);
       text-decoration: none;
       transition: color 0.2s ease;
@@ -98,6 +97,7 @@ export class AlbumDetailPage extends LitElement {
       border: none;
       cursor: pointer;
       padding: 0;
+      font-size: 0.875rem;
     }
 
     .download-button:hover {
@@ -257,9 +257,10 @@ export class AlbumDetailPage extends LitElement {
                   href=${routes.albumDownload(this.slug)}
                   class="download-button"
                   @click=${handleNavClick}
-                  title="Download Album"
+                  title="Download Gallery"
                 >
                   ${unsafeSVG(downloadIcon)}
+                  <span>Download</span>
                 </a>
               </div>
             `
