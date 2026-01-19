@@ -31,7 +31,9 @@ func main() {
 	}
 
 	// Load environment variables from the specified file
-	if err := godotenv.Load(*envFile); err != nil {
+	// Using Overload instead of Load ensures env file values take precedence
+	// over existing shell environment variables
+	if err := godotenv.Overload(*envFile); err != nil {
 		slog.Error("failed to load env file", slog.String("path", *envFile), slog.String("error", err.Error()))
 		os.Exit(1)
 	}

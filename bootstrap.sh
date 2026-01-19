@@ -66,6 +66,15 @@ else
 fi
 echo ""
 
+# Install frontend dependencies
+echo "Installing frontend dependencies..."
+if [ -f "$PROJECT_ROOT/frontend/package.json" ]; then
+    (cd "$PROJECT_ROOT/frontend" && npm install)
+    echo -e "${GREEN}✓ Frontend dependencies installed${NC}\n"
+else
+    echo -e "${RED}✗ frontend/package.json not found${NC}\n"
+fi
+
 # Initialize albums.json if it doesn't exist
 if [ ! -f "$PROJECT_ROOT/data/albums.json" ]; then
     echo "Initializing albums.json..."
