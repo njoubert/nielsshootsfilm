@@ -4,4 +4,4 @@
 set -e
 
 cd "$(dirname "$0")/.."
-exec npm run typecheck
+exec pnpm run typecheck

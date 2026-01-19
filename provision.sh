@@ -101,22 +101,42 @@ install_node() {
             print_warning "Please install Node.js 24.11.0 or higher manually"
         fi
     fi
+}
 
-    # Verify npm
-    if command_exists npm; then
-        NPM_VERSION=$(npm --version)
-        print_success "npm ready: v$NPM_VERSION"
+# Install pnpm (fast, disk-efficient package manager)
+install_pnpm() {
+    print_header "Installing pnpm"
+
+    if command_exists pnpm; then
+        PNPM_VERSION=$(pnpm --version)
+        print_success "pnpm already installed: v$PNPM_VERSION"
     else
-        if [[ "$OS" == "macos" ]]; then
-            print_info "Installing npm via Homebrew..."
-            brew install npm
-            print_success "npm installed"
+        if command_exists node; then
+            print_info "Installing pnpm via corepack..."
+            # corepack is included with Node.js 16.10+
+            corepack enable
+            corepack prepare pnpm@latest --activate
+            print_success "pnpm installed via corepack"
+        elif [[ "$OS" == "macos" ]]; then
+            print_info "Installing pnpm via Homebrew..."
+            brew install pnpm
+            print_success "pnpm installed"
         elif [[ "$OS" == "linux" ]]; then
-            print_info "Installing npm via nvm recommended"
-            print_warning "Please install npm manually"
+            print_info "Installing pnpm via npm..."
+            npm install -g pnpm
+            print_success "pnpm installed"
         fi
     fi
 
+    # Verify pnpm
+    if command_exists pnpm; then
+        PNPM_VERSION=$(pnpm --version)
+        print_success "pnpm ready: v$PNPM_VERSION"
+    else
+        print_error "pnpm installation failed"
+        print_info "Try: npm install -g pnpm"
+        exit 1
+    fi
 }
 
 # Install Go
@@ -194,8 +214,8 @@ install_frontend_deps() {
         exit 1
     fi
 
-    print_info "Installing npm packages..."
-    npm install
+    print_info "Installing packages with pnpm..."
+    pnpm install
 
     print_success "Frontend dependencies installed"
     cd ..
@@ -462,11 +482,11 @@ verify_installation() {
         all_good=false
     fi
 
-    # Check npm
-    if command_exists npm; then
-        print_success "npm: v$(npm --version)"
+    # Check pnpm
+    if command_exists pnpm; then
+        print_success "pnpm: v$(pnpm --version)"
     else
-        print_error "npm: not found"
+        print_error "pnpm: not found"
         all_good=false
     fi
 
@@ -564,6 +584,7 @@ main() {
     # Run installation steps
     check_homebrew
     install_node
+    install_pnpm
     install_go
     install_vips
     install_frontend_deps

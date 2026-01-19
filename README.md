@@ -32,6 +32,7 @@ As a "product", this repository provides a modern photography portfolio with a u
 ## Tech Stack
 
 - **Frontend**: TypeScript + Lit web components (~5KB), Vite for dev server
+- **Package Manager**: pnpm (fast, disk-efficient)
 - **Backend**: Go admin server for JSON file manipulation
 - **Build**: Simple shell scripts (frontend/scripts/, backend/scripts/)
 - **Data**: JSON files as database
@@ -65,12 +66,15 @@ cd nielsshootsfilm
 The script installs:
 
 - ✅ Node.js 20.x (frontend)
+- ✅ pnpm (fast package manager)
 - ✅ Go 1.22+ (backend)
-- ✅ Frontend npm packages
+- ✅ Frontend packages via pnpm
 - ✅ Pre-commit hooks
 - ✅ Optional dev tools (golangci-lint, jq)
 
 **Note:** Go dependencies are vendored in `backend/vendor/` and committed to the repository. No `go mod download` is needed - the backend builds hermetically from the repository contents alone.
+
+**Note:** Frontend dependencies are vendored in `frontend/.pnpm-store/` and committed to the repository. No npm registry access is needed - the frontend builds hermetically with `pnpm install --offline`.
 
 ### Manual Setup (Alternative)
 
@@ -78,10 +82,10 @@ If you prefer manual installation:
 
 ```bash
 # Install system dependencies (macOS)
-brew install node@20 go@1.22 pre-commit golangci-lint
+brew install node@20 go@1.22 pre-commit golangci-lint pnpm
 
-# Install frontend dependencies
-cd frontend && npm install
+# Install frontend dependencies (uses vendored packages)
+cd frontend && pnpm install --offline
 
 # Install pre-commit hooks
 pre-commit install
@@ -90,7 +94,7 @@ pre-commit install
 ./bootstrap.sh
 ```
 
-**Note:** Go dependencies are already vendored in `backend/vendor/` - no additional download needed.
+**Note:** Both Go and frontend dependencies are already vendored - no network downloads needed.
 
 ### Environment Management with direnv (Optional but Recommended)
 
@@ -173,7 +177,7 @@ Run tests using the unified test script:
 
 # Or run tests directly in each directory
 cd backend && go test -race ./...  # Always use -race for concurrency safety
-cd frontend && npm test
+cd frontend && pnpm test
 ```
 
 **Note:** Backend tests always run with Go's race detector (`-race` flag) to catch concurrency bugs early.

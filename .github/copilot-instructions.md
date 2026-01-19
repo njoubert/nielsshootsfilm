@@ -6,21 +6,22 @@
 
 - **Hybrid Static/Dynamic**: Static files for visitor speed, dynamic Go backend for admin ease
 - **No Traditional Database**: JSON files (`albums.json`, `site_config.json`) are the data store
-- **Custom scripts as Orchestrator**: Wraps npm/vite and go build tools (not a replacement)
+- **Custom scripts as Orchestrator**: Wraps pnpm/vite and go build tools (not a replacement)
 - **Pre-commit Hooks**: Local quality checks (linting, formatting, type-checking) - no cloud CI
 
 ## Tech Stack
 
 - **Frontend**: TypeScript + Lit (~5KB web components), Vite for HMR
+- **Package Manager**: pnpm (fast, disk-efficient)
 - **Backend**: Go (admin server that modifies JSON files)
-- **Build**: Custom scripts orchestrates npm and go build tools
+- **Build**: Custom scripts orchestrates pnpm and go build tools
 - **Data**: JSON files in `data/` directory
 - **Static Files**: Kept in the `static/` directory, served directly to visitors
 - **Testing**: Pre-commit hooks + manual E2E checklist (MVP).
 
 ## Project Scripts - USE THESE
 
-**Always prefer these root-level scripts over running npm, vite, npx, or go commands directly.**
+**Always prefer these root-level scripts over running pnpm, vite, npx, or go commands directly.**
 
 **`./dev.sh`** - Start/stop development servers
 
@@ -36,7 +37,7 @@
 - `./dev.sh backend status` - Check backend status
 
 **Status checks**: The status commands check if processes are running AND if they're responding to HTTP requests. Returns clear indicators: ✓ (running), ⚠ (running but not responding), or ✗ (not running).
-**`./test.sh`** - Run tests (intelligently dispatches to npm or go)
+**`./test.sh`** - Run tests (intelligently dispatches to pnpm or go)
 
 - `./test.sh` - Run all unit tests (backend and frontend)
 - `./test.sh backend` - Run all backend unit tests only
@@ -47,18 +48,18 @@
 - `./test.sh -- storage-stats.test.ts` - Run specific frontend test file
 - `./test.sh -- frontend/src/components/storage-stats.test.ts` - Run frontend test with full path
 - The `--` separator is optional: `./test.sh backend/...` works too
-- Use this instead of `npm test` or `go test`
+- Use this instead of `pnpm test` or `go test`
 - Automatically detects test type from file path (backend vs frontend)
 - Exits automatically after tests complete (no manual intervention needed)
 - Provides colored output for easy scanning
 
 **`./fmt.sh`** - Format all code (runs prettier, gofmt, etc.)
 
-- Use this instead of `npm run format` or `go fmt`
+- Use this instead of `pnpm run format` or `go fmt`
 
 **`./build.sh`** - Compile code for distribution
 
-- Use this instead of `npm run build` or `go build`
+- Use this instead of `pnpm run build` or `go build`
 
 **`./bootstrap.sh`** - Create environmental files for the app
 
@@ -229,6 +230,43 @@ git add vendor go.mod go.sum  # Commit all changes together
 cd backend
 ./scripts/update-deps.sh           # Check for available updates
 ./scripts/update-deps.sh --update  # Interactively update and re-vendor
+```
+
+### Frontend Dependency Vendoring
+
+**Frontend dependencies are vendored** in `frontend/.pnpm-store/` and committed to the repository. This makes the frontend build hermetic - no npm registry access is required.
+
+**Key points:**
+
+- pnpm uses a content-addressable store configured via `frontend/.npmrc`
+- The `frontend/.pnpm-store/` directory (~192MB) is committed to git
+- No `pnpm install` network calls needed after cloning
+- Use `--offline` flag to enforce fully hermetic installs
+
+**When adding/updating frontend dependencies:**
+
+```bash
+cd frontend
+pnpm add <package>            # Add dependency (populates store automatically)
+pnpm add -D <package>         # Add dev dependency
+pnpm update <package>         # Update specific package
+pnpm fetch                    # Explicitly fetch all lockfile packages to store
+git add .pnpm-store pnpm-lock.yaml  # Commit all changes together
+```
+
+**Checking for dependency updates:**
+
+```bash
+cd frontend
+./scripts/update-deps.sh           # Check for available updates
+./scripts/update-deps.sh --update  # Interactively update and re-vendor
+```
+
+**Offline install (hermetic):**
+
+```bash
+cd frontend
+pnpm install --offline        # Install without network (fails if packages missing)
 ```
 
 ## UIUX Design Principles

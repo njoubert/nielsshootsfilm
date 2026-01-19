@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Unified test runner for both frontend (npm/vitest) and backend (go test)
+# Unified test runner for both frontend (pnpm/vitest) and backend (go test)
 # Intelligently dispatches to the appropriate test runner based on file path
 #
 # Usage:
@@ -79,7 +79,7 @@ run_frontend_tests() {
 
     if [ -n "$test_path" ]; then
         # Run specific test file
-        if npm test -- "$test_path"; then
+        if pnpm test -- "$test_path"; then
             log_success "Frontend tests passed"
             return 0
         else
@@ -88,7 +88,7 @@ run_frontend_tests() {
         fi
     else
         # Run all frontend tests
-        if npm test; then
+        if pnpm test; then
             log_success "Frontend tests passed"
             return 0
         else

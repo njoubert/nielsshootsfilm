@@ -28,12 +28,12 @@ else
   echo "  ℹ️  No env file found (using defaults)"
 fi
 
-echo "�📥 Installing dependencies in build directory..."
+echo "📥 Installing dependencies in build directory..."
 cd "$TEMP_BUILD_DIR"
-npm ci --no-audit --prefer-offline 2>/dev/null || npm install
+pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 
 echo "🏗️  Building frontend..."
-npm run build
+pnpm run build
 
 echo "📁 Preparing final build directory structure..."
 mkdir -p "$FINAL_BUILD_DIR"

@@ -4,4 +4,4 @@
 set -e
 
 cd "$(dirname "$0")/.."
-exec npm run test:watch
+exec pnpm run test:watch

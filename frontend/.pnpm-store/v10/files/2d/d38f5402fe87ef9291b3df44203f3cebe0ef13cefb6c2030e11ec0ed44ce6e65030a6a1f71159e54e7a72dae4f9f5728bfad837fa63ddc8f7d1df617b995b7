@@ -1,0 +1,8 @@
+import type { Rule, ESLint } from 'eslint';
+export declare const rules: Record<string, Rule.RuleModule>;
+export declare const configs: {
+    all: ESLint.ConfigData<import("eslint").Linter.RulesRecord>;
+    'flat/all': import("eslint").Linter.FlatConfig;
+    recommended: ESLint.ConfigData<import("eslint").Linter.RulesRecord>;
+    'flat/recommended': import("eslint").Linter.FlatConfig;
+};

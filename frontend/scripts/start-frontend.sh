@@ -27,7 +27,7 @@ echo "  Log file: $LOG_FILE"
 
 # Start the server in the background
 cd "$FRONTEND_DIR"
-nohup npm run dev > "$LOG_FILE" 2>&1 &
+nohup pnpm run dev > "$LOG_FILE" 2>&1 &
 SERVER_PID=$!
 
 # Save the PID

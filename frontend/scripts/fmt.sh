@@ -4,4 +4,4 @@
 set -e
 
 cd "$(dirname "$0")/.."
-exec npm run format
+exec pnpm run format

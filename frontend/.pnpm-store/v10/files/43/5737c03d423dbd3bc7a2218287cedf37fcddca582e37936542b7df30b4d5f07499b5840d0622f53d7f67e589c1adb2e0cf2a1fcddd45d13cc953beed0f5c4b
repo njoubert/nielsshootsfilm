@@ -1,0 +1,32 @@
+{
+    "name": "@types/masonry-layout",
+    "version": "4.2.8",
+    "description": "TypeScript definitions for masonry-layout",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/masonry-layout",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Mark Wilson",
+            "githubUsername": "m-a-wilson",
+            "url": "https://github.com/m-a-wilson"
+        },
+        {
+            "name": "Travis Brown",
+            "githubUsername": "warriorrocker",
+            "url": "https://github.com/warriorrocker"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/masonry-layout"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/jquery": "*"
+    },
+    "typesPublisherContentHash": "6ae7e971395a849bccee1948ce8ccb30d22e4c91b0062ed492ab17ab37a8febc",
+    "typeScriptVersion": "4.7"
+}

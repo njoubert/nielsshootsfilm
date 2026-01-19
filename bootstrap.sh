@@ -69,7 +69,7 @@ echo ""
 # Install frontend dependencies
 echo "Installing frontend dependencies..."
 if [ -f "$PROJECT_ROOT/frontend/package.json" ]; then
-    (cd "$PROJECT_ROOT/frontend" && npm install)
+    (cd "$PROJECT_ROOT/frontend" && pnpm install)
     echo -e "${GREEN}✓ Frontend dependencies installed${NC}\n"
 else
     echo -e "${RED}✗ frontend/package.json not found${NC}\n"

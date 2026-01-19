@@ -4,4 +4,4 @@
 set -e
 
 cd "$(dirname "$0")/.."
-exec npm run lint
+exec pnpm run lint

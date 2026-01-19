@@ -6,6 +6,7 @@ This is the frontend application for the photography portfolio website. It's bui
 
 - **Framework**: Vanilla TypeScript with Lit web components (~5KB)
 - **Build Tool**: Vite (fast HMR, optimized production builds)
+- **Package Manager**: pnpm (fast, disk-efficient)
 - **Testing**: Vitest for unit tests
 - **Styling**: Vanilla CSS with CSS custom properties
 
@@ -14,11 +15,11 @@ This is the frontend application for the photography portfolio website. It's bui
 ### Development
 
 ```bash
-# Install dependencies
-npm install
+# Install dependencies (uses vendored packages, no network needed)
+pnpm install --offline
 
 # Start development server (http://localhost:5173)
-npm run dev
+pnpm run dev
 ```
 
 ### Production Build
@@ -40,28 +41,28 @@ See [DEPLOYMENT.md](../docs/DEPLOYMENT.md) for deployment instructions.
 
 ### Development Commands
 
-- `npm run dev` - Start dev server with HMR
-- `npm run preview` - Preview production build locally
+- `pnpm run dev` - Start dev server with HMR
+- `pnpm run preview` - Preview production build locally
 
 ### Build Commands
 
-- `npm run build` - TypeScript compile + Vite build
+- `pnpm run build` - TypeScript compile + Vite build
 - `./scripts/build.sh` - Production build with data/static directories
 
 ### Test Commands
 
-- `npm test` - Run all tests once
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:ui` - Open Vitest UI
-- `npm run test:ci` - Run tests for CI (no watch mode)
+- `pnpm test` - Run all tests once
+- `pnpm run test:watch` - Run tests in watch mode
+- `pnpm run test:ui` - Open Vitest UI
+- `pnpm run test:ci` - Run tests for CI (no watch mode)
 
 ### Code Quality Commands
 
-- `npm run lint` - Lint TypeScript files
-- `npm run lint:fix` - Lint and auto-fix issues
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check formatting
-- `npm run typecheck` - TypeScript type checking
+- `pnpm run lint` - Lint TypeScript files
+- `pnpm run lint:fix` - Lint and auto-fix issues
+- `pnpm run format` - Format code with Prettier
+- `pnpm run format:check` - Check formatting
+- `pnpm run typecheck` - TypeScript type checking
 
 ### Script Shortcuts
 
@@ -165,7 +166,7 @@ Tests are written with Vitest and follow these conventions:
 Run tests with:
 
 ```bash
-npm test
+pnpm test
 ```
 
 ## Deployment
@@ -184,6 +185,35 @@ The frontend is designed to be deployed as a static site. See [DEPLOYMENT.md](..
 - Safari 14+
 - Chrome/Edge 90+
 - Firefox 88+
+
+## Vendored Dependencies
+
+All npm packages are vendored in `.pnpm-store/` (committed to git). This enables **hermetic builds** - no npm registry access needed after cloning.
+
+```bash
+# Offline install (hermetic, recommended)
+pnpm install --offline
+
+# Regular install (prefers offline, falls back to network)
+pnpm install
+```
+
+**When adding/updating packages:**
+
+```bash
+pnpm add <package>                   # Add and populate store
+pnpm fetch                           # Ensure store has all lockfile packages
+git add .pnpm-store pnpm-lock.yaml   # Commit together
+```
+
+**Checking for updates:**
+
+```bash
+./scripts/update-deps.sh             # Check for available updates
+./scripts/update-deps.sh --update    # Interactively update and re-vendor
+```
+
+See `.pnpm-store/README.md` for more details.
 
 ## Performance
 
