@@ -1,9 +1,10 @@
 # Experimental
 experimental/
 
-# Dependencies
+# Dependencies - node_modules is excluded, but .pnpm-store is vendored
 node_modules/
 frontend/node_modules/
+# Note: frontend/.pnpm-store/ is NOT ignored - it's vendored for hermetic builds
 
 # Build outputs
 dist/
