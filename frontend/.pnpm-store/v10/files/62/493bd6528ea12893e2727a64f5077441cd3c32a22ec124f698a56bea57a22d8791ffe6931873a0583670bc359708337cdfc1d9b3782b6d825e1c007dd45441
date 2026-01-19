@@ -1,0 +1,50 @@
+{
+  "name": "vite-plugin-lit-css",
+  "description": "Plugin to get all the power of Vite styles with lit tagged-template ⚡",
+  "version": "2.2.2",
+  "type": "module",
+  "homepage": "https://github.com/redfox-mx/vite-lit-css/blob/main/README.md",
+  "repository": "https://github.com/redfox-mx/vite-lit-css",
+  "author": {
+    "name": "Diego Jesus Hernández González",
+    "email": "hernandezdj98@outlook.com",
+    "aka": "redfox-mx"
+  },
+  "engines": {
+    "node": ">=18.2.0"
+  },
+  "files": [
+    "dist",
+    "client.d.ts"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./client.d.ts"
+    }
+  },
+  "devDependencies": {
+    "@rollup/pluginutils": "^5.0.2",
+    "@types/node": "^20.19.9",
+    "fast-glob": "^3.3.1",
+    "picocolors": "^1.0.0",
+    "rollup": "^4.46.2",
+    "tsx": "^4.8.1",
+    "unbuild": "^2.0.0",
+    "vitest": "^0.32.2"
+  },
+  "peerDependencies": {
+    "lit": "^2.0.0 || ^3.0.0",
+    "vite": "^5.2.10 || ^6.0.0 || ^7.0.0"
+  },
+  "scripts": {
+    "build": "unbuild && tsx scripts/patchCJS.ts"
+  }
+}
