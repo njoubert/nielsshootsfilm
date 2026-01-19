@@ -28,14 +28,10 @@ else
   echo "  ℹ️  No env file found (will use system environment variables)"
 fi
 
-echo "�📥 Initializing Go modules in build directory..."
+echo "🏗️  Building backend (using vendored dependencies)..."
 cd "$TEMP_BUILD_DIR"
-# go.mod and go.sum are already copied, just ensure dependencies are downloaded
-go mod download
-go mod verify
-
-echo "🏗️  Building backend..."
-go build -o admin ./cmd/admin
+# Build with vendored dependencies - no network access needed
+go build -mod=vendor -o admin ./cmd/admin
 
 echo "📁 Preparing final build directory..."
 mkdir -p "$FINAL_BUILD_DIR"

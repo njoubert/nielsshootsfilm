@@ -161,9 +161,34 @@ backend/
 │   ├── middleware/     # HTTP middleware
 │   ├── models/         # Data models
 │   └── services/       # Business logic services
+├── vendor/             # Vendored Go dependencies (hermetic builds)
+├── scripts/            # Build, test, and maintenance scripts
 ├── go.mod              # Go module dependencies
-└── env.example        # Environment variable template
+└── env.example         # Environment variable template
 ```
+
+## Dependencies & Vendoring
+
+**All Go dependencies are vendored** in `vendor/` for hermetic builds (no network required).
+
+**Adding a new package:**
+
+```bash
+cd backend
+go get <package>@<version>   # Add dependency
+go mod tidy                   # Clean up go.mod
+go mod vendor                 # Regenerate vendor directory
+git add vendor go.mod go.sum  # Commit together
+```
+
+**Updating dependencies:**
+
+```bash
+./scripts/update-deps.sh           # Check for updates
+./scripts/update-deps.sh --update  # Interactive update
+```
+
+**Important:** All project scripts already use `-mod=vendor`. If running `go` commands directly, add the flag: `go build -mod=vendor ./...`
 
 ## Security Features
 

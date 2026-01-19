@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-01-17T06:10:58.539667Z",
+  "last_updated": "2026-01-19T08:06:08.445046Z",
   "site": {
     "title": "niels.shoots.film",
     "tagline": "Film Photography Portfolio",
@@ -22,6 +22,7 @@
     "primary_color": "#1a1a1a",
     "secondary_color": "#ffffff",
     "accent_color": "#4a90e2",
+    "font_heading": "EB Garamond",
     "theme": {
       "mode": "system",
       "light": {
@@ -41,7 +42,7 @@
     }
   },
   "portfolio": {
-    "main_album_id": "052b6eaf-6cdb-4686-8157-a67bcd21f48d",
+    "main_album_id": "307bf86b-2204-451c-b43b-7e23f897d2bd",
     "show_exif_data": true,
     "default_photo_layout": "square",
     "enable_lightbox": true,

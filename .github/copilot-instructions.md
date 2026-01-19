@@ -200,6 +200,37 @@ routes.admin.albums(); // '/admin/albums'
 
 **Testing navigation**: Use `vi.spyOn(window.history, 'pushState')` to verify navigation calls.
 
+## Backend
+
+### Go Dependency Vendoring
+
+**Go dependencies are vendored** in `backend/vendor/` and committed to the repository. This makes the backend build hermetic - no network access is required during build or test.
+
+**Key points:**
+
+- All Go commands use `-mod=vendor` flag (handled by project scripts)
+- The `backend/vendor/` directory is committed to git
+- No `go mod download` needed after cloning
+- To update dependencies: edit `go.mod`, run `go mod tidy`, then `go mod vendor`
+
+**When adding/updating Go dependencies:**
+
+```bash
+cd backend
+go get <package>@<version>   # Add or update dependency
+go mod tidy                   # Clean up go.mod and go.sum
+go mod vendor                 # Regenerate vendor directory
+git add vendor go.mod go.sum  # Commit all changes together
+```
+
+**Checking for dependency updates:**
+
+```bash
+cd backend
+./scripts/update-deps.sh           # Check for available updates
+./scripts/update-deps.sh --update  # Interactively update and re-vendor
+```
+
 ## UIUX Design Principles
 
 1. Always use subtle colors, transitions, styles, and spacing for a gentle, professional feel.

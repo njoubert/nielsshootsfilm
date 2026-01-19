@@ -14,4 +14,4 @@ fi
 
 # Run the Go program from the backend directory where go.mod exists
 cd "$BACKEND_DIR"
-go run ./cmd/hash-password "$@"
+go run -mod=vendor ./cmd/hash-password "$@"

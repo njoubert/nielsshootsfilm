@@ -67,9 +67,10 @@ The script installs:
 - ✅ Node.js 20.x (frontend)
 - ✅ Go 1.22+ (backend)
 - ✅ Frontend npm packages
-- ✅ Backend Go modules
 - ✅ Pre-commit hooks
 - ✅ Optional dev tools (golangci-lint, jq)
+
+**Note:** Go dependencies are vendored in `backend/vendor/` and committed to the repository. No `go mod download` is needed - the backend builds hermetically from the repository contents alone.
 
 ### Manual Setup (Alternative)
 
@@ -79,9 +80,8 @@ If you prefer manual installation:
 # Install system dependencies (macOS)
 brew install node@20 go@1.22 pre-commit golangci-lint
 
-# Install project dependencies
+# Install frontend dependencies
 cd frontend && npm install
-cd ../backend && go mod download
 
 # Install pre-commit hooks
 pre-commit install
@@ -89,6 +89,8 @@ pre-commit install
 # Bootstrap project (create data files, set admin password)
 ./bootstrap.sh
 ```
+
+**Note:** Go dependencies are already vendored in `backend/vendor/` - no additional download needed.
 
 ### Environment Management with direnv (Optional but Recommended)
 

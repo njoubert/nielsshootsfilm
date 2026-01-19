@@ -59,9 +59,9 @@ run_backend_tests() {
     log_info "Running backend Go tests with -race: $test_path"
     cd "$SCRIPT_DIR/backend"
 
-    # Run tests and filter out harmless macOS linker warnings about LC_DYSYMTAB
-    # These warnings are common with the race detector on macOS and can be safely ignored
-    if go test -v -race "$test_path" 2>&1 | grep -v "malformed LC_DYSYMTAB"; then
+    # Run tests with vendored dependencies and filter out harmless macOS linker warnings
+    # about LC_DYSYMTAB. These warnings are common with the race detector on macOS and can be safely ignored
+    if go test -mod=vendor -v -race "$test_path" 2>&1 | grep -v "malformed LC_DYSYMTAB"; then
         log_success "Backend tests passed"
         return 0
     else
