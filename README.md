@@ -45,7 +45,7 @@ This project is developed by a solo developer working with AI agents (GitHub Cop
 
 **Quality Standards:**
 
-- Automated code quality checks via pre-commit hooks
+- Automated code quality checks via prek (pre-commit) hooks
 - Type-safe TypeScript and Go
 
 ## Quick Start
@@ -69,7 +69,7 @@ The script installs:
 - ✅ pnpm (fast package manager)
 - ✅ Go 1.22+ (backend)
 - ✅ Frontend packages via pnpm
-- ✅ Pre-commit hooks
+- ✅ prek (pre-commit) hooks
 - ✅ Optional dev tools (golangci-lint, jq)
 
 **Note:** Go dependencies are vendored in `backend/vendor/` and committed to the repository. No `go mod download` is needed - the backend builds hermetically from the repository contents alone.
@@ -82,13 +82,13 @@ If you prefer manual installation:
 
 ```bash
 # Install system dependencies (macOS)
-brew install node@20 go@1.22 pre-commit golangci-lint pnpm
+brew install node@20 go@1.22 prek golangci-lint pnpm
 
 # Install frontend dependencies (uses vendored packages)
 cd frontend && pnpm install --offline
 
-# Install pre-commit hooks
-pre-commit install
+# Install prek (pre-commit) hooks
+prek install
 
 # Bootstrap project (create data files, set admin password)
 ./bootstrap.sh

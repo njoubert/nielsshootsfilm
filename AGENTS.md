@@ -318,7 +318,7 @@ This repository requires writing reports if you make major changes to the codeba
 
 - Always check the docs/MVP_PLAN.md for MVP priorities
 - Reference docs/DEVELOPMENT_SETUP.md for tool configuration details
-- Always run pre-commit hooks before committing code, by using `pre-commit run`.
+- Always run pre-commit hooks before committing code, by using `prek run`.
 - Check the documentation that is close to the files you changed and make updates as needed.
 
 ## Common Gotchas
@@ -354,7 +354,7 @@ server: {
 ## You MAY NOT
 
 - You may not turn off tests without explicit permission
-- You may not remove checks from the pre-commit hooks.
+- You may not remove checks from the prek (pre-commit) hooks.
 - Never use MCP servers for git interactions, always use raw git commands on the command line to commit, push, pull, branch, merge, rebase, etc.
 - Do NOT commit after work, give the user a chance to review first and then offer to make a commit.
 

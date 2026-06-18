@@ -263,26 +263,31 @@ install_backend_deps() {
     cd ..
 }
 
-# Install pre-commit hooks
+# Install prek (fast, Rust-based pre-commit replacement)
 install_precommit() {
-    print_header "Installing Pre-commit Hooks"
+    print_header "Installing prek (Pre-commit Hooks)"
 
-    if command_exists pre-commit; then
-        print_success "pre-commit already installed"
+    if command_exists prek; then
+        print_success "prek already installed"
     else
         if [[ "$OS" == "macos" ]]; then
-            print_info "Installing pre-commit via Homebrew..."
-            brew install pre-commit
+            print_info "Installing prek via Homebrew..."
+            brew install prek
         elif [[ "$OS" == "linux" ]]; then
-            print_info "Installing pre-commit via pip..."
-            pip install pre-commit || pip3 install pre-commit
+            print_info "Installing prek via Homebrew..."
+            if command_exists brew; then
+                brew install prek
+            else
+                print_warning "Homebrew not found on Linux"
+                print_info "Install prek manually: https://github.com/j178/prek"
+            fi
         fi
     fi
 
     # Install git hooks
     if [ -f ".pre-commit-config.yaml" ]; then
         print_info "Installing git hook scripts..."
-        pre-commit install
+        prek install
 
         # Generate secrets baseline if it doesn't exist
         if [ ! -f ".secrets.baseline" ]; then
@@ -295,7 +300,7 @@ install_precommit() {
             fi
         fi
 
-        print_success "Pre-commit hooks installed"
+        print_success "prek hooks installed"
     else
         print_warning "No .pre-commit-config.yaml found"
     fi
@@ -522,11 +527,11 @@ verify_installation() {
         all_good=false
     fi
 
-    # Check pre-commit
-    if command_exists pre-commit; then
-        print_success "pre-commit: installed"
+    # Check prek
+    if command_exists prek; then
+        print_success "prek: installed"
     else
-        print_warning "pre-commit: not found (optional but recommended)"
+        print_warning "prek: not found (optional but recommended)"
     fi
 
     # Check shellcheck
