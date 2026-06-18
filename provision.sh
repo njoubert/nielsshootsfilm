@@ -243,6 +243,22 @@ install_backend_deps() {
     print_info "Tidying Go modules..."
     go mod tidy
 
+    # Verify the build works in vendor mode. The backend commits its vendor/
+    # directory for hermetic builds and Go uses -mod=vendor by default when one
+    # exists, so an incomplete vendor tree (e.g. a package silently dropped by a
+    # .gitignore rule) only surfaces here, not via `go mod download`/`tidy`.
+    if [ -d "vendor" ]; then
+        print_info "Verifying backend build (vendor mode)..."
+        if go build -mod=vendor ./...; then
+            print_success "Backend build succeeded (vendor mode)"
+        else
+            print_error "Backend build failed in vendor mode"
+            print_info "The committed vendor/ directory may be incomplete or out of sync."
+            print_info "Try regenerating it: (cd backend && go mod vendor)"
+            exit 1
+        fi
+    fi
+
     print_success "Backend dependencies installed"
     cd ..
 }

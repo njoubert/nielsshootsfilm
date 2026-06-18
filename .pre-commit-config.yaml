@@ -4,6 +4,10 @@
 default_language_version:
   node: system
 
+# Vendored third-party code is committed for hermetic builds but should never be
+# reformatted or linted by our hooks.
+exclude: '^(backend/vendor/|frontend/\.pnpm-store/)'
+
 repos:
   # ====================
   # General / Multi-language
@@ -41,7 +45,8 @@ repos:
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
-        exclude: package-lock.json
+        # Lockfiles contain high-entropy integrity hashes, not secrets.
+        exclude: '(package-lock\.json|pnpm-lock\.yaml)'
 
   # ====================
   # TypeScript / JavaScript

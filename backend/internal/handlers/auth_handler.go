@@ -47,6 +47,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set session cookie
+	// #nosec G124 - Secure is intentionally false for local-dev HTTP; HTTPS is
+	// terminated by the reverse proxy in production. HttpOnly and SameSite are set.
 	http.SetCookie(w, &http.Cookie{
 		Name:     "photoadmin_session",
 		Value:    sessionID,
@@ -74,6 +76,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Clear cookie
+	// #nosec G124 - Secure is intentionally false for local-dev HTTP; HTTPS is
+	// terminated by the reverse proxy in production. HttpOnly and SameSite are set.
 	http.SetCookie(w, &http.Cookie{
 		Name:     "photoadmin_session",
 		Value:    "",

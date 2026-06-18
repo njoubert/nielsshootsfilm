@@ -155,6 +155,10 @@ func (h *AlbumHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 	// Parse multipart form
 	// Each request contains one file, but allow some overhead for form metadata
 	maxFormSize := int64(internal.MaxUploadFileSize + (10 * 1024 * 1024)) // Max file size + 10MB overhead
+	// Bound the request body before parsing so a malicious client cannot
+	// exhaust memory by streaming an arbitrarily large multipart body.
+	r.Body = http.MaxBytesReader(w, r.Body, maxFormSize)
+	// #nosec G120 - the body is bounded by MaxBytesReader above, so parsing cannot exhaust memory.
 	if err := r.ParseMultipartForm(maxFormSize); err != nil {
 		// Check if this is a timeout or connection error
 		errMsg := err.Error()

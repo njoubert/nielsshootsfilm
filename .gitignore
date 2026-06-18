@@ -27,7 +27,7 @@ frontend/src/**/*.js.map
 env
 env.local
 env.*.local
-*env
+*.env
 
 # Secrets
 *.pem

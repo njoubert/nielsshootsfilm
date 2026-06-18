@@ -91,11 +91,12 @@ Never write `users.json`, `admin_config.json`, the tenant registry, or anything 
 
 ## 4. Target on-disk layout
 
-```
+```text
 PRIVATE_DATA_DIR/                         # never served by nginx
   platform/
-    tenants.json                          # tenant registry
+    tenants.json                          # tenant registry (incl. per-tenant quota_mb)
     users.json                            # all users (platform admin + tenant admins)
+    platform_config.json                  # machine-global storage settings (§14)
     .backups/                             # FileService backups
   tenants/
     niels/
@@ -211,12 +212,23 @@ type Tenant struct {
     Slug        string    `json:"slug"`         // subdomain + dir name, unique
     DisplayName string    `json:"display_name"`
     Status      string    `json:"status"`       // "active" | "suspended"
-    QuotaMB     int       `json:"quota_mb"`     // 0 = unlimited (enforced in Phase 7)
+    QuotaMB     int       `json:"quota_mb"`     // default 10240 (10 GB) on create; 0 = unlimited. See §14
     OwnerUserID string    `json:"owner_user_id"`
     CreatedAt   time.Time `json:"created_at"`
     UpdatedAt   time.Time `json:"updated_at"`
 }
 type TenantRegistry struct { Tenants []Tenant `json:"tenants"` }
+```
+
+`backend/internal/models/platform_config.go` — machine-global settings (see §14), stored
+at `PRIVATE_DATA_DIR/platform/platform_config.json`:
+
+```go
+type PlatformConfig struct {
+    MaxDiskUsagePercent  int `json:"max_disk_usage_percent"`   // global safety ceiling, default 80
+    DefaultQuotaMB       int `json:"default_quota_mb"`         // applied to new tenants, default 10240 (10 GB)
+    DefaultMaxImageSizeMB int `json:"default_max_image_size_mb"` // per-file cap default, default 50
+}
 ```
 
 `backend/internal/models/user.go`:
@@ -240,9 +252,11 @@ superseded by `users.json`; the migration (Phase 2) converts the existing admin 
 ### 6.2 New services
 
 - `PlatformStore` (`backend/internal/services/platform_store.go`): CRUD over
-  `tenants.json` and `users.json` in `PRIVATE_DATA_DIR/platform/`, backed by the existing
-  `FileService` (rooted at the platform dir). Provides: `GetTenantBySlug`, `ListTenants`,
-  `CreateTenant`, `DeleteTenant`, `GetUserByLogin(tenantID, username)`, `CreateUser`, etc.
+  `tenants.json`, `users.json`, and `platform_config.json` in `PRIVATE_DATA_DIR/platform/`,
+  backed by the existing `FileService` (rooted at the platform dir). Provides:
+  `GetTenantBySlug`, `ListTenants`, `CreateTenant`, `DeleteTenant`,
+  `GetUserByLogin(tenantID, username)`, `CreateUser`, `GetPlatformConfig`,
+  `SetTenantQuota`, etc.
 - `Publisher` (`backend/internal/services/publisher.go`): implements the §3.1
   sanitization. `PublishAlbums(priv []Album) -> writes published albums.json`,
   `PublishSiteConfig(...)`. Pure transform + write via a `FileService` rooted at the
@@ -383,11 +397,18 @@ New `PlatformHandler` — these routes are only valid when the request resolves 
 - `POST /api/admin/tenants` — create tenant: validate slug, create both directories,
   scaffold default `site_config.json` (reuse `SiteConfigService.getDefaultConfig`) and
   empty `albums.json`, create the `tenant_admin` user with a provided/initial password,
-  publish initial empty public data. Idempotent-ish: fail clearly if slug exists.
+  set `quota_mb` from the request or fall back to `PlatformConfig.DefaultQuotaMB`
+  (**10 GB = 10240 MB**), publish initial empty public data. Idempotent-ish: fail clearly
+  if slug exists.
 - `DELETE /api/admin/tenants/{slug}` — soft delete (set `status=suspended`) by default;
   hard delete (remove directories) behind an explicit `?purge=true` + confirmation.
 - `POST /api/admin/tenants/{slug}/reset-password` — set a new password for that tenant's
   admin user (operator-driven reset; see §6.10).
+- `PUT  /api/admin/tenants/{slug}/quota` — set that tenant's `quota_mb` (§14).
+- `GET  /api/admin/platform/storage` — machine-global storage view: whole-disk `Statfs`,
+  the global ceiling, and a per-tenant usage/quota table (§14).
+- `GET/PUT /api/admin/platform/config` — read/update `platform_config.json`
+  (`max_disk_usage_percent`, `default_quota_mb`, `default_max_image_size_mb`).
 
 Reuse the existing role-gating middleware pattern; add a `RequireRole("platform_admin")`
 middleware.
@@ -403,7 +424,7 @@ Mostly reuse — little new logic:
   ([admin-api.ts:633](../../frontend/src/utils/admin-api.ts#L633)). **Only change:** persist
   to the user's record in `users.json` instead of `admin_config.json`.
 - **Initial password** is set by the platform admin at tenant creation (§6.9 `POST
-  /tenants`). The `hash-password` CLI ([backend/cmd/hash-password](../../backend/cmd/hash-password))
+/tenants`). The `hash-password` CLI ([backend/cmd/hash-password](../../backend/cmd/hash-password))
   stays useful for manual seeding/migration.
 - **Forgot password → operator reset (new, small).** No email/SMTP, no self-service reset
   flow (out of scope at this scale). Instead the platform admin sets a new password via
@@ -563,7 +584,9 @@ after success). Back up everything first.
 
 ### Phase 7 — Hardening (optional, can trail)
 
-- Per-tenant disk **quota** enforcement (extend existing `StorageConfig` / storage handler).
+- **Storage & quotas (§14):** per-tenant quota view + the two upload gates (tenant quota,
+  platform safety) + the platform-wide storage view. Replaces today's single-user
+  whole-disk view.
 - Gate **password-protected image bytes** through Go (token-checked image proxy) so photo
   files aren't reachable by raw URL.
 - Basic **rate limiting** on login + verify-password.
@@ -624,7 +647,82 @@ up less frequently.
 - Provide a `scripts/backup.sh` that tars `PRIVATE_DATA_DIR` (and, on its own cadence, the
   uploads tree) with a timestamp; keep an offsite copy.
 
-## 14. Guardrails / DO-NOT list for the implementer
+## 14. Storage & quotas
+
+Today's storage feature ([storage_handler.go](../../backend/internal/handlers/storage_handler.go))
+is a single-user view that conflates two unrelated things: a `syscall.Statfs` view of the
+**whole machine's disk** and a `MaxDiskUsagePercent` ceiling that lives in the per-tenant
+`site_config.json`. Multi-tenant splits these into two distinct concerns.
+
+### 14.1 Two concerns
+
+**(A) Per-tenant quota — tenant-facing.** What a tenant admin sees and is limited by.
+
+- Each tenant has `quota_mb` (on the `Tenant` model). **Default 10 GB (10240 MB)** on
+  create; `0` means unlimited.
+- A tenant's usage = walk of **their own** `SITES_DIR/tenants/<slug>/uploads/`
+  (`originals`/`display`/`thumbnails`) — reuse `calculateDirectorySize` /
+  `calculateStorageBreakdown`, just rooted at the tenant dir.
+- Tenant admin page shows `used / quota_mb`, percent, and warning bands (e.g. warn at
+  90%). It must **not** show whole-disk numbers or any other tenant's data.
+
+**(B) Platform disk health — operator-facing.** Lives on the `join.` platform admin page.
+
+- Whole-disk `Statfs` (total / free / overall %), the global `max_disk_usage_percent`
+  ceiling, a **per-tenant table** (usage, quota, % of quota), and **sum-of-quotas vs
+  physical disk** so oversubscription is visible.
+- Oversubscription is allowed and expected (quotas may sum to more than the disk); the
+  view exists precisely to keep an eye on it.
+
+### 14.2 Where each setting lives
+
+- **`quota_mb`** — didn't exist before → now **per-tenant** (`Tenant` model), default 10 GB.
+- **`max_disk_usage_percent`** — was per-tenant `site_config` → now **platform-global**
+  (`platform_config.json`).
+- **`max_image_size_mb`** — was per-tenant `site_config` → now a **platform default**
+  (`platform_config.json`) **plus an optional per-tenant override**.
+
+Model change: in `SiteConfig.StorageConfig`
+([site_config.go](../../backend/internal/models/site_config.go)), `MaxImageSizeMB` becomes
+an **override** (`0` = inherit the platform default) and `MaxDiskUsagePercent` becomes
+**deprecated/ignored** (the platform value is authoritative). To avoid a migration, leave
+the old field present but stop reading it (additive philosophy, §12).
+
+### 14.3 Enforcement — two upload gates (new)
+
+Today the limit is **advisory only** (warning text; the upload path doesn't block — see
+[album_handler.go UploadPhotos](../../backend/internal/handlers/album_handler.go#L142),
+which only checks per-file size). Add **hard** gates in `UploadPhotos`, checked before
+processing each file:
+
+1. **Tenant quota gate:** if `tenant_used + incoming_size > quota_mb` (and `quota_mb != 0`)
+   → reject with `413` and a clear "storage quota exceeded" message.
+2. **Platform safety gate:** if whole-disk usage `>= max_disk_usage_percent` → reject **all**
+   uploads with `507` "platform storage full — contact the operator". Protects the machine
+   even when quotas are oversubscribed.
+3. Per-file size cap = tenant `max_image_size_mb` override, else platform default.
+
+### 14.4 Computing usage
+
+- Start with **on-demand directory walks** (fine at dozens of tenants). The per-tenant view
+  walks one dir; the platform view walks N.
+- If the platform view gets slow, add a **cached `used_bytes` per tenant** (in the registry),
+  incremented on upload / decremented on delete, with a periodic full-walk reconcile to
+  correct drift. Optimization only — don't build it preemptively.
+- These are **app-level logical quotas**, not OS filesystem quotas: simpler and
+  cross-platform, good enough for photos (not a hard kernel guarantee).
+
+### 14.5 Endpoints & frontend
+
+- **Tenant** (`GET /api/admin/storage/stats`, tenant host): refactor the existing handler
+  to be tenant-scoped — walk the tenant's uploads, compare to `quota_mb`. Drop whole-disk
+  fields from this response.
+- **Platform** (`GET /api/admin/platform/storage`, §6.9): whole-disk + per-tenant table.
+- **Frontend:** split [storage-stats.ts](../../frontend/src/components/storage-stats.ts) —
+  a per-tenant quota view on the tenant admin page, and a disk-health + per-tenant table on
+  the platform admin page.
+
+## 15. Guardrails / DO-NOT list for the implementer
 
 - **DO NOT** serve `/data` or `/uploads` from Go in production — nginx serves them. Go only
   writes them.

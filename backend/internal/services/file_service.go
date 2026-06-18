@@ -128,7 +128,8 @@ func (fs *FileService) createBackup(filename string) error {
 	backupName := fmt.Sprintf("%s.%s.bak", filename, timestamp)
 	backupPath := filepath.Join(fs.backupDir, backupName)
 
-	// #nosec G306 - 0644 is appropriate for backup files
+	// #nosec G306 G703 - 0644 is appropriate for backup files; backupPath is
+	// derived from internal filenames under the controlled backup directory.
 	if err := os.WriteFile(backupPath, data, 0644); err != nil {
 		return err
 	} // Clean up old backups (keep last 10 per file)
@@ -214,7 +215,8 @@ func (fs *FileService) Rollback(filename string) error {
 
 	// Write to original file
 	filePath := filepath.Join(fs.dataDir, filename)
-	// #nosec G306 - 0644 is appropriate for JSON data files
+	// #nosec G306 G703 - 0644 is appropriate for JSON data files; filePath is
+	// derived from internal filenames under the controlled data directory.
 	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return fmt.Errorf("failed to restore backup: %w", err)
 	}
